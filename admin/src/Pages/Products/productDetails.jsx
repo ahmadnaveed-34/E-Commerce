@@ -206,13 +206,13 @@ const ProductDetails = () => {
                 <span className="w-[20%] font-[500] flex items-center gap-2  text-[14px]">
                   <MdRateReview className="opacity-65" /> Review :{" "}
                 </span>
-                <span className=" text-[14px]">
+                <span className="text-[14px]">
                   ({reviewsData?.length > 0 ? reviewsData?.length : 0}) Review
                 </span>
               </div>
 
               <div className="flex items-center py-1">
-                <span className="w-[20%] font-[500] flex items-center gap-2  text-[14px]">
+                <span className="w-[22%] lg:w-[22%] font-[500] flex items-center gap-2 text-[14px] whitespace-nowrap">
                   <BsPatchCheckFill className="opacity-65" /> Published :{" "}
                 </span>
                 <span className=" text-[14px]">
@@ -240,7 +240,10 @@ const ProductDetails = () => {
             {reviewsData?.length !== 0 &&
               reviewsData?.map((review, index) => {
                 return (
-                  <div className="reviews w-full h-auto mb-3 p-4 bg-white rounded-sm shadow-md flex items-center justify-between">
+                  <div
+                    key={index}
+                    className="reviews w-full h-auto mb-3 p-4 bg-white rounded-sm shadow-md flex items-center justify-between"
+                  >
                     <div className="flex items-center gap-8">
                       <div className="img w-[65px] h-[65px] rounded-full overflow-hidden">
                         {review?.image !== "" && review?.image !== null ? (

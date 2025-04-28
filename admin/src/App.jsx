@@ -1,6 +1,5 @@
 import "./App.css";
 import "./responsive.css";
-import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Dashboard from "./Pages/Dashboard";
 import Header from "./Components/Header";
