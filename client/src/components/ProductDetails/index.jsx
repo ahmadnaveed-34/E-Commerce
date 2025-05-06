@@ -3,17 +3,17 @@ import Button from "@mui/material/Button";
 import { QtyBox } from "../QtyBox";
 import Rating from "@mui/material/Rating";
 import { MdOutlineShoppingCart } from "react-icons/md";
-import { FaRegHeart } from "react-icons/fa";
+import { FaMinus, FaPlus, FaRegHeart } from "react-icons/fa";
 import { IoGitCompareOutline } from "react-icons/io5";
 import { MyContext } from "../../App";
 import CircularProgress from "@mui/material/CircularProgress";
-import { postData } from "../../utils/api";
+import { deleteData, editData, postData } from "../../utils/api";
 import { FaCheckDouble } from "react-icons/fa";
 import { IoMdHeart } from "react-icons/io";
 
 export const ProductDetailsComponent = (props) => {
   const [productActionIndex, setProductActionIndex] = useState(null);
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(0);
   const [selectedTabName, setSelectedTabName] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [tabError, setTabError] = useState(false);
@@ -26,6 +26,10 @@ export const ProductDetailsComponent = (props) => {
 
   const [filteredVariants, setFilteredVariants] = useState([]);
   const [selectedVariants, setSelectedVariants] = useState({});
+  const [productMaxQty, setProductMaxQty] = useState();
+  const [cartItemPrice, setCartItemPrice] = useState();
+
+  const [cartItemId, setCartItemId] = useState();
 
   useEffect(() => {
     setRegularPrice(props?.item?.variants?.[0]?.regularPrice);
@@ -35,10 +39,6 @@ export const ProductDetailsComponent = (props) => {
 
   const context = useContext(MyContext);
 
-  const handleSelecteQty = (qty) => {
-    setQuantity(qty);
-  };
-
   // const handleClickActiveTab = (index, name) => {
   //   setProductActionIndex(index);
   //   setSelectedTabName(name);
@@ -47,18 +47,6 @@ export const ProductDetailsComponent = (props) => {
   //   setCountInStock(props?.item?.variants?.[index]?.stock);
   //   context?.setChangeProductPicIndex(index + props?.item?.images?.length);
   // };
-
-  useEffect(() => {
-    const item = context?.cartData?.filter((cartItem) =>
-      cartItem.productId.includes(props?.item?._id)
-    );
-
-    if (item?.length !== 0) {
-      setIsAdded(true);
-    } else {
-      setIsAdded(false);
-    }
-  }, [isAdded]);
 
   useEffect(() => {
     const myListItem = context?.myListData?.filter((item) =>
@@ -96,7 +84,7 @@ export const ProductDetailsComponent = (props) => {
       rating: product?.rating,
       price: filteredVariants[0]?.discountedPrice,
       oldPrice: filteredVariants[0]?.regularPrice,
-      quantity: quantity,
+      quantity: 1,
       subTotal: parseInt(filteredVariants[0]?.discountedPrice * quantity),
       productId: product?._id,
       brand: product?.brand,
@@ -176,6 +164,70 @@ export const ProductDetailsComponent = (props) => {
     }
   };
 
+  const addQty = () => {
+    if (quantity < productMaxQty) {
+      const newQty = quantity + 1;
+      setQuantity(newQty);
+
+      const cartObj = {
+        _id: cartItemId,
+        qty: newQty,
+        subTotal: cartItemPrice * newQty,
+      };
+
+      editData("/api/cart/update-qty", cartObj).then((res) => {
+        if (res?.data?.error === false) {
+          context.alertBox("success", res?.data?.message);
+          context?.getCartItems();
+        }
+      });
+    } else {
+      context.alertBox("error", "Selected quantity exceeds available stock.");
+    }
+  };
+
+  const minusQty = () => {
+    if (quantity > 1) {
+      const newQty = quantity - 1;
+      setQuantity(newQty);
+
+      const obj = {
+        _id: cartItemId,
+        qty: newQty,
+        subTotal: cartItemPrice * newQty,
+      };
+
+      editData("/api/cart/update-qty", obj).then((res) => {
+        context.alertBox("success", res?.data?.message);
+        context?.getCartItems();
+      });
+    } else if (quantity === 1) {
+      deleteData(`/api/cart/delete-cart-item/${cartItemId}`).then((res) => {
+        setIsAdded(false);
+        setQuantity(0);
+        context.alertBox("success", "Item removed from cart");
+        context?.getCartItems();
+      });
+    }
+  };
+
+  useEffect(() => {
+    const item = context?.cartData?.find(
+      (cartItem) => cartItem.productId === props?.item?._id
+    );
+
+    if (item) {
+      setIsAdded(true);
+      setCartItemId(item._id);
+      setCartItemPrice(item.price);
+      setProductMaxQty(item.countInStock);
+      setQuantity(item.quantity);
+    } else {
+      setIsAdded(false);
+      setQuantity(0);
+    }
+  }, [context?.cartData]);
+
   return (
     <>
       <h1 className="text-[18px] sm:text-[22px] font-[600] mb-2">
@@ -203,6 +255,8 @@ export const ProductDetailsComponent = (props) => {
           Review ({props.reviewsCount})
         </span>
       </div>
+
+      {console.log(quantity)}
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-4">
         <div className="flex items-center gap-4">
@@ -306,6 +360,24 @@ export const ProductDetailsComponent = (props) => {
       </p>
 
       <div className="flex items-center gap-4 py-4">
+        {isAdded && (
+          <div className="flex items-center justify-between overflow-hidden rounded-full border border-[rgba(0,0,0,0.1)]">
+            <Button
+              className="!min-w-[35px] !w-[35px] !h-[30px] !bg-[#f1f1f1] !rounded-none"
+              onClick={minusQty}
+            >
+              <FaMinus className="text-[rgba(0,0,0,0.7)]" />
+            </Button>
+
+            <span>{quantity}</span>
+            <Button
+              className="!min-w-[35px] !w-[35px] !h-[30px] !bg-gray-800 !rounded-none"
+              onClick={addQty}
+            >
+              <FaPlus className="text-white" />
+            </Button>
+          </div>
+        )}
         <Button
           className="btn-org flex gap-2 !min-w-[150px]"
           onClick={() =>
