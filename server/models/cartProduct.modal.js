@@ -1,64 +1,70 @@
 import mongoose from "mongoose";
 
-const cartProductSchema = new mongoose.Schema({
-    productTitle:{
-        type:String,
-        required:true
+const cartProductSchema = new mongoose.Schema(
+  {
+    productTitle: {
+      type: String,
+      required: true,
     },
-    image:{
-        type:String,
-        required:true
+    image: {
+      type: String,
+      required: true,
     },
-    rating:{
-        type:Number,
-        required:true
+    rating: {
+      type: Number,
+      required: true,
     },
-    price:{
-        type:Number,
-        required:true
+    price: {
+      type: Number,
+      required: true,
     },
-    oldPrice:{
-        type:Number,
+    oldPrice: {
+      type: Number,
     },
-    discount:{
-        type:Number,
+    // discount:{
+    //     type:Number,
+    // },
+    // size:{
+    //     type:String,
+    // },
+    // weight:{
+    //     type:String,
+    // },
+    // ram:{
+    //     type:String,
+    // },
+    quantity: {
+      type: Number,
+      required: true,
     },
-    size:{
-        type:String,
+    subTotal: {
+      type: Number,
+      required: true,
     },
-    weight:{
-        type:String,
+    productId: {
+      type: String,
+      required: true,
     },
-    ram:{
-        type:String,
+    countInStock: {
+      type: Number,
+      required: true,
     },
-    quantity:{
-        type:Number,
-        required:true
+    userId: {
+      type: String,
+      required: true,
     },
-    subTotal:{
-        type:Number,
-        required:true
+    brand: {
+      type: String,
     },
-    productId:{
-        type:String,
-        required:true
+    productVariantId: {
+      type: String,
     },
-    countInStock:{
-        type:Number,
-        required:true
-    },
-    userId:{
-        type:String,
-        required:true
-    },
-    brand:{
-        type:String,
-    }
-},{
-    timestamps : true
-});
+  },
+  {
+    timestamps: true,
+  }
+);
 
-const CartProductModel = mongoose.model('cart',cartProductSchema)
+const CartProductModel = mongoose.model("cart", cartProductSchema);
 
-export default CartProductModel
+export default CartProductModel;

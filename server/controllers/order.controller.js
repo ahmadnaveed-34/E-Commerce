@@ -18,30 +18,34 @@ export const createOrderController = async (request, response) => {
     });
 
     if (!order) {
-      response.status(500).json({
+      return response.status(500).json({
         error: true,
         success: false,
+        message: "Failed to create order object",
       });
     }
 
     order = await order.save();
 
     for (let i = 0; i < request.body.products.length; i++) {
-      const product = await ProductModel.findOne({
-        _id: request.body.products[i].productId,
-      });
+      const { productId, productVariantId, quantity } =
+        request.body.products[i];
+      const product = await ProductModel.findById(productId);
+      if (!product) continue;
 
-      await ProductModel.findByIdAndUpdate(
-        request.body.products[i].productId,
-        {
-          countInStock: parseInt(
-            request.body.products[i].countInStock -
-              request.body.products[i].quantity
-          ),
-          sale: parseInt(product?.sale + request.body.products[i].quantity),
-        },
-        { new: true }
+      // Update variant stock
+      const variantIndex = product.variants.findIndex(
+        (v) => v._id.toString() === productVariantId
       );
+
+      if (variantIndex !== -1) {
+        product.variants[variantIndex].stock -= quantity;
+      }
+
+      // Update product sale count
+      product.sale = parseInt(product.sale || 0) + quantity;
+
+      await product.save();
     }
 
     const user = await UserModel.findOne({ _id: request.body.userId });
@@ -49,7 +53,6 @@ export const createOrderController = async (request, response) => {
     const recipients = [];
     recipients.push(user?.email);
 
-    // Send verification email
     await sendEmailFun({
       sendTo: recipients,
       subject: "Order Confirmation",
@@ -662,7 +665,6 @@ export const totalUsersController = async (request, response) => {
 
 export async function deleteOrder(request, response) {
   const order = await OrderModel.findById(request.params.id);
-
 
   if (!order) {
     return response.status(404).json({

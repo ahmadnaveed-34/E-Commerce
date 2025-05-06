@@ -1,117 +1,83 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const productSchema = mongoose.Schema({
+const productSchema = mongoose.Schema(
+  {
     name: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     description: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     images: [
-        {
-            type: String,
-            required: true
-        }
+      {
+        type: String,
+        required: true,
+      },
     ],
     brand: {
-        type: String,
-        default: ''
+      type: String,
+      default: "",
     },
-    price: {
-        type: Number,
-        default: 0
-    },
-    oldPrice: {
-        type: Number,
-        default: 0
-    },
-    catName:{
-        type:String,
-        default:''
-    },
-    catId:{
-        type:String,
-        default:''
-    },
-    subCatId:{
-        type:String,
-        default:''
-    },
-    subCat:{
-        type:String,
-        default:''
-    },
-    thirdsubCat:{
-        type:String,
-        default:''
-    },
-    thirdsubCatId:{
-        type:String,
-        default:''
-    },
+    catName: { type: String, default: "" },
+    catId: { type: String, default: "" },
+    subCatId: { type: String, default: "" },
+    subCat: { type: String, default: "" },
     category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category',
-    },
-    countInStock: {
-        type: Number,
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
     },
     rating: {
-        type: Number,
-        default: 0,
+      type: Number,
+      default: 0,
     },
     isFeatured: {
-        type: Boolean,
-        default: false,
-    },
-    discount: {
-        type: Number,
-        required: true,
+      type: Boolean,
+      default: false,
     },
     sale: {
-        type: Number,
-        default:0
+      type: Number,
+      default: 0,
     },
-    productRam: [
-        {
-            type: String,
-            default: null,
-        }
-    ],
-    size: [
-        {
-            type: String,
-            default: null,
-        }
-    ],
-    productWeight: [
-        {
-            type: String,
-            default: null,
-        }
-    ],
     bannerimages: [
-        {
-            type: String,
-            required: true
-        }
+      {
+        type: String,
+        required: true,
+      },
     ],
     bannerTitleName: {
-        type: String,
-        default: '',
+      type: String,
+      default: "",
     },
     isDisplayOnHomeBanner: {
-        type: Boolean,
-        default: false,
+      type: Boolean,
+      default: false,
     },
-},{
-    timestamps : true
-});
 
+    variants: [
+      {
+        size: { type: String },
+        color: { type: String },
+        ram: { type: String },
+        storage: { type: String },
+        material: { type: String },
+        weight: { type: String },
+        flavour: { type: String },
+        dimensions: { type: String },
+        voltage: { type: String },
+        regularPrice: { type: Number, required: true },
+        discountedPrice: { type: Number, required: true },
+        stock: { type: Number, required: true },
+        image: { type: String, required: true },
+      },
+    ],
+  },
+  {
+    timestamps: true,
+  }
+);
 
-const ProductModel = mongoose.model('Product',productSchema)
+const ProductModel = mongoose.model("Product", productSchema);
 
-export default ProductModel
+export default ProductModel;

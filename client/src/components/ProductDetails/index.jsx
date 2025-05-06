@@ -20,16 +20,33 @@ export const ProductDetailsComponent = (props) => {
   const [isAdded, setIsAdded] = useState(false);
   const [isAddedInMyList, setIsAddedInMyList] = useState(false);
 
+  const [regularPrice, setRegularPrice] = useState();
+  const [discountedPrice, setDiscountedPrice] = useState();
+  const [countInStock, setCountInStock] = useState();
+
+  const [filteredVariants, setFilteredVariants] = useState([]);
+  const [selectedVariants, setSelectedVariants] = useState({});
+
+  useEffect(() => {
+    setRegularPrice(props?.item?.variants?.[0]?.regularPrice);
+    setDiscountedPrice(props?.item?.variants?.[0]?.discountedPrice);
+    setCountInStock(props?.item?.variants?.[0]?.stock);
+  }, []);
+
   const context = useContext(MyContext);
 
   const handleSelecteQty = (qty) => {
     setQuantity(qty);
   };
 
-  const handleClickActiveTab = (index, name) => {
-    setProductActionIndex(index);
-    setSelectedTabName(name);
-  };
+  // const handleClickActiveTab = (index, name) => {
+  //   setProductActionIndex(index);
+  //   setSelectedTabName(name);
+  //   setRegularPrice(props?.item?.variants?.[index]?.regularPrice);
+  //   setDiscountedPrice(props?.item?.variants?.[index]?.discountedPrice);
+  //   setCountInStock(props?.item?.variants?.[index]?.stock);
+  //   context?.setChangeProductPicIndex(index + props?.item?.images?.length);
+  // };
 
   useEffect(() => {
     const item = context?.cartData?.filter((cartItem) =>
@@ -61,70 +78,48 @@ export const ProductDetailsComponent = (props) => {
       return false;
     }
 
+    if (filteredVariants?.length === 0 || filteredVariants?.length > 1) {
+      return context?.alertBox(
+        "error",
+        "At least one valid product variant is required."
+      );
+    }
+
+    if (filteredVariants[0]?.stock === 0) {
+      return context?.alertBox("error", "Stock not available for this variant");
+    }
+
     const productItem = {
       _id: product?._id,
       productTitle: product?.name,
-      image: product?.images[0],
+      image: filteredVariants[0]?.image,
       rating: product?.rating,
-      price: product?.price,
-      oldPrice: product?.oldPrice,
-      discount: product?.discount,
+      price: filteredVariants[0]?.discountedPrice,
+      oldPrice: filteredVariants[0]?.regularPrice,
       quantity: quantity,
-      subTotal: parseInt(product?.price * quantity),
+      subTotal: parseInt(filteredVariants[0]?.discountedPrice * quantity),
       productId: product?._id,
-      countInStock: product?.countInStock,
       brand: product?.brand,
-      size: props?.item?.size?.length !== 0 ? selectedTabName : "",
-      weight: props?.item?.productWeight?.length !== 0 ? selectedTabName : "",
-      ram: props?.item?.productRam?.length !== 0 ? selectedTabName : "",
+      countInStock: filteredVariants[0]?.stock,
+      productVariantId: filteredVariants[0]?._id,
     };
 
-    if (
-      props?.item?.size?.length !== 0 ||
-      props?.item?.productWeight?.length !== 0 ||
-      props?.item?.productRam?.length !== 0
-    ) {
-      if (selectedTabName !== null) {
-        setIsLoading(true);
+    postData("/api/cart/add", productItem).then((res) => {
+      if (res?.error === false) {
+        context?.alertBox("success", res?.message);
 
-        postData("/api/cart/add", productItem).then((res) => {
-          if (res?.error === false) {
-            context?.alertBox("success", res?.message);
-
-            context?.getCartItems();
-            setTimeout(() => {
-              setIsLoading(false);
-              setIsAdded(true);
-            }, 500);
-          } else {
-            context?.alertBox("error", res?.message);
-            setTimeout(() => {
-              setIsLoading(false);
-            }, 500);
-          }
-        });
+        context?.getCartItems();
+        setTimeout(() => {
+          setIsLoading(false);
+          setIsAdded(true);
+        }, 500);
       } else {
-        setTabError(true);
+        context?.alertBox("error", res?.message);
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 500);
       }
-    } else {
-      setIsLoading(true);
-      postData("/api/cart/add", productItem).then((res) => {
-        if (res?.error === false) {
-          context?.alertBox("success", res?.message);
-
-          context?.getCartItems();
-          setTimeout(() => {
-            setIsLoading(false);
-            setIsAdded(true);
-          }, 500);
-        } else {
-          context?.alertBox("error", res?.message);
-          setTimeout(() => {
-            setIsLoading(false);
-          }, 500);
-        }
-      });
-    }
+    });
   };
 
   const handleAddToMyList = (item) => {
@@ -138,10 +133,9 @@ export const ProductDetailsComponent = (props) => {
         productTitle: item?.name,
         image: item?.images[0],
         rating: item?.rating,
-        price: item?.price,
-        oldPrice: item?.oldPrice,
+        price: item?.variants[0]?.discountedPrice,
+        oldPrice: item?.variants[0]?.regularPrice,
         brand: item?.brand,
-        discount: item?.discount,
       };
 
       postData("/api/myList/add", obj).then((res) => {
@@ -156,15 +150,42 @@ export const ProductDetailsComponent = (props) => {
     }
   };
 
+  const handleClickActiveTab = (key, value) => {
+    const newSelected = { ...selectedVariants, [key]: value };
+
+    // Filter variants that match all selected keys
+    const filtered = props?.item?.variants?.filter((variant) =>
+      Object.entries(newSelected).every(([k, v]) => variant[k] === v)
+    );
+
+    setSelectedVariants(newSelected);
+    setFilteredVariants(filtered);
+
+    setRegularPrice(filtered[0]?.regularPrice);
+    setDiscountedPrice(filtered[0]?.discountedPrice);
+    setCountInStock(filtered[0]?.stock);
+
+    const variantIndex = props?.item?.variants?.findIndex((variant) =>
+      Object.entries(newSelected).every(([k, v]) => variant[k] === v)
+    );
+
+    if (variantIndex !== -1) {
+      context?.setChangeProductPicIndex(
+        (props?.item?.images?.length || 0) + variantIndex
+      );
+    }
+  };
+
   return (
     <>
       <h1 className="text-[18px] sm:text-[22px] font-[600] mb-2">
         {props?.item?.name}
       </h1>
-      <div className="flex items-start sm:items-center lg:items-center flex-col sm:flex-row md:flex-row lg:flex-row gap-3 justify-start">
+
+      <div className="flex items-start sm:items-center flex-col sm:flex-row gap-3 justify-start">
         <span className="text-gray-400 text-[13px]">
-          Brands :{" "}
-          <span className="font-[500] text-black opacity-75">
+          Brand:
+          <span className="font-[500] text-black opacity-75 ml-1">
             {props?.item?.brand}
           </span>
         </span>
@@ -183,21 +204,21 @@ export const ProductDetailsComponent = (props) => {
         </span>
       </div>
 
-      <div className="flex flex-col sm:flex-row md:flex-row lg:flex-row items-start sm:items-center gap-4 mt-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-4">
         <div className="flex items-center gap-4">
           <span className="oldPrice line-through text-gray-500 text-[20px] font-[500]">
-            Rs.{props?.item?.price}
+            Rs.{regularPrice || 0}
           </span>
-          <span className="price text-primary text-[20px]  font-[600]">
-            Rs.{props?.item?.oldPrice}
+          <span className="price text-primary text-[20px] font-[600]">
+            Rs.{discountedPrice || 0}
           </span>
         </div>
 
         <div className="flex items-center gap-4">
           <span className="text-[14px]">
-            Available In Stock:{" "}
-            <span className="text-green-600 text-[14px] font-bold">
-              {props?.item?.countInStock} Items
+            In Stock:
+            <span className="text-green-600 text-[14px] font-bold ml-1">
+              {countInStock || 0} Items
             </span>
           </span>
         </div>
@@ -205,102 +226,101 @@ export const ProductDetailsComponent = (props) => {
 
       <p className="mt-3 pr-10 mb-5">{props?.item?.description}</p>
 
-      {props?.item?.productRam?.length !== 0 && (
-        <div className="flex items-center gap-3">
-          <span className="text-[16px]">RAM:</span>
-          <div className="flex items-center gap-1 actions">
-            {props?.item?.productRam?.map((item, index) => {
-              return (
-                <Button
-                  key={index}
-                  className={`${
-                    productActionIndex === index
-                      ? "!bg-primary !text-white"
-                      : ""
-                  }  ${tabError === true && "error"}`}
-                  onClick={() => handleClickActiveTab(index, item)}
-                >
-                  {item}
-                </Button>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      {/* Dynamic Variant Rendering */}
+      <div className="space-y-3">
+        {["size", "color", "material", "ram", "weight"].map((key) => {
+          const allVariants = props?.item?.variants || [];
 
-      {props?.item?.size?.length !== 0 && (
-        <div className="flex items-center gap-3">
-          <span className="text-[16px]">SIZE:</span>
-          <div className="flex items-center gap-1 actions">
-            {props?.item?.size?.map((item, index) => {
-              return (
-                <Button
-                  key={index}
-                  className={`${
-                    productActionIndex === index
-                      ? "!bg-primary !text-white"
-                      : ""
-                  } ${tabError === true && "error"}`}
-                  onClick={() => handleClickActiveTab(index, item)}
-                >
-                  {item}
-                </Button>
-              );
-            })}
-          </div>
-        </div>
-      )}
+          // Filter valid variants that match all other selected keys (except current key)
+          const filteredForKey = allVariants.filter((v) =>
+            Object.entries(selectedVariants).every(
+              ([k, val]) => k === key || v[k] === val
+            )
+          );
 
-      {props?.item?.productWeight?.length !== 0 && (
-        <div className="flex items-center gap-3">
-          <span className="text-[16px]">WEIGHT:</span>
-          <div className="flex items-center gap-1 actions">
-            {props?.item?.productWeight?.map((item, index) => {
-              return (
-                <Button
-                  key={index}
-                  className={`${
-                    productActionIndex === index
-                      ? "!bg-primary !text-white"
-                      : ""
-                  }  ${tabError === true && "error"}`}
-                  onClick={() => handleClickActiveTab(index, item)}
-                >
-                  {item}
-                </Button>
-              );
-            })}
-          </div>
+          // Unique values for current key from filtered variants
+          const validValues = [
+            ...new Set(filteredForKey.map((v) => v[key]).filter(Boolean)),
+          ];
+
+          return (
+            validValues.length > 0 && (
+              <div key={key} className="flex items-center gap-2">
+                <span className="uppercase text-sm">{key}:</span>
+                {validValues.map((val, i) => {
+                  // Determine if this exact value is selectable
+                  const isDisabled = !allVariants.some((v) =>
+                    Object.entries({ ...selectedVariants, [key]: val }).every(
+                      ([k, vVal]) => v[k] === vVal
+                    )
+                  );
+
+                  return (
+                    <button
+                      key={i}
+                      disabled={isDisabled}
+                      className={`px-2 py-1 rounded border 
+                  ${
+                    selectedVariants[key] === val
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-200"
+                  }
+                  ${
+                    isDisabled
+                      ? "opacity-40 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }
+                `}
+                      onClick={() =>
+                        !isDisabled && handleClickActiveTab(key, val)
+                      }
+                    >
+                      {val}
+                    </button>
+                  );
+                })}
+              </div>
+            )
+          );
+        })}
+      </div>
+
+      {/* {(filteredVariants || []).map((v, i) => (
+        <div key={i} className="mt-2 p-3 border rounded-md bg-gray-50">
+          <p className="text-sm">
+            Price: <strong>{v.discountedPrice}</strong>
+          </p>
+          <p className="text-sm">
+            Stock: <strong>{v.stock}</strong>
+          </p>
+          <img
+            src={v.image}
+            alt=""
+            className="w-[100px] h-[100px] object-contain mt-2"
+          />
         </div>
-      )}
+      ))} */}
 
       <p className="text-[14px] mt-5 mb-2 text-[#000]">
-        Free Shipping (Est. Delivery Time 2-3 Days)
+        Free Shipping (Est. Delivery Time 2–3 Days)
       </p>
-      <div className="flex items-center gap-4 py-4">
-        {/* <div className="qtyBoxWrapper w-[70px]">
-          <QtyBox handleSelecteQty={handleSelecteQty} />
-        </div> */}
 
+      <div className="flex items-center gap-4 py-4">
         <Button
           className="btn-org flex gap-2 !min-w-[150px]"
           onClick={() =>
             addToCart(props?.item, context?.userData?._id, quantity)
           }
         >
-          {isLoading === true ? (
+          {isLoading ? (
             <CircularProgress />
+          ) : isAdded ? (
+            <>
+              <FaCheckDouble /> Added
+            </>
           ) : (
             <>
-              {isAdded === true ? (
-                <>
-                  <FaCheckDouble /> Added
-                </>
-              ) : (
-                <>
-                  <MdOutlineShoppingCart className="text-[22px]" /> Add to Cart
-                </>
-              )}
+              <MdOutlineShoppingCart className="text-[22px]" /> Add to Cart
             </>
           )}
         </Button>
@@ -311,17 +331,13 @@ export const ProductDetailsComponent = (props) => {
           className="flex items-center gap-2 text-[14px] sm:text-[15px] link cursor-pointer font-[500]"
           onClick={() => handleAddToMyList(props?.item)}
         >
-          {isAddedInMyList === true ? (
-            <IoMdHeart className="text-[18px] !text-primary group-hover:text-white hover:!text-white" />
+          {isAddedInMyList ? (
+            <IoMdHeart className="text-[18px] text-primary" />
           ) : (
-            <FaRegHeart className="text-[18px] !text-black group-hover:text-white hover:!text-white" />
+            <FaRegHeart className="text-[18px] text-black" />
           )}
           Add to Wishlist
         </span>
-
-        {/* <span className="flex items-center gap-2  text-[14px] sm:text-[15px] link cursor-pointer font-[500]">
-          <IoGitCompareOutline className="text-[18px]" /> Add to Compare
-        </span> */}
       </div>
     </>
   );

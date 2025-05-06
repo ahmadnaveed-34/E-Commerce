@@ -45,7 +45,9 @@ const CartPanel = (props) => {
                     to={`/product/${item?.productId}`}
                     className="link transition-all"
                   >
-                    {item?.productTitle?.substr(0, 20) + "..."}
+                    {item?.productTitle?.length > 20
+                      ? item?.productTitle?.substr(0, 20) + "..."
+                      : item?.productTitle}
                   </Link>
                 </h4>
                 <p className="flex items-center gap-5 mt-2 mb-2">

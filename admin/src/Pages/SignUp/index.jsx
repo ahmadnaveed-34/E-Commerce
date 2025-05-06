@@ -77,8 +77,6 @@ const SignUp = () => {
     }
 
     postData("/api/user/register", formFields).then((res) => {
- 
-
       if (res?.error !== true) {
         setIsLoading(false);
         context.alertBox("success", res?.message);
@@ -135,7 +133,6 @@ const SignUp = () => {
           }
         });
 
-   
         // IdP data available using getAdditionalUserInfo(result)
         // ...
       })
@@ -152,10 +149,10 @@ const SignUp = () => {
   };
 
   return (
-    <section className="bg-white w-full">
-      <header className="w-full static lg:fixed top-0 left-0  px-4 py-3 flex items-center justify-center sm:justify-between z-50">
+    <section className="w-full">
+      <header className="w-full static lg:fixed top-0 left-0  px-4 flex items-center justify-center sm:justify-between z-50">
         <Link to="/">
-          <img src={localStorage.getItem("logo")} className="w-[200px]" />
+          <img src={localStorage.getItem("logo")} className="w-[130px]" />
         </Link>
 
         <div className="hidden sm:flex items-center gap-0">
@@ -174,17 +171,12 @@ const SignUp = () => {
       </header>
       <img src="/patern.webp" className="w-full fixed top-0 left-0 opacity-5" />
 
-      <div className="loginBox card w-full md:w-[600px] h-[auto] pb-20 mx-auto pt-5 lg:pt-20 relative z-50">
-        <div className="text-center">
-          <img src="/icon.svg" className="m-auto" />
-        </div>
-
-        <h1 className="text-center text-[18px] sm:text-[35px] font-[800] mt-4">
-          Join us today! Get special <br />
-          benefits and stay up-to-date.
+      <div className="loginBox card w-full md:w-[600px] h-[auto] pb-3 mx-auto pt-2 lg:pt-12 relative z-50">
+        <h1 className="text-center text-[18px] sm:text-[25px] font-[800] mt-4">
+          Join us today! Get special
         </h1>
 
-        <div className="flex items-center justify-center w-full mt-5 gap-4">
+        <div className="flex items-center justify-center w-full mt-3 gap-4">
           <LoadingButton
             size="small"
             onClick={authWithGoogle}
@@ -198,24 +190,12 @@ const SignUp = () => {
           </LoadingButton>
         </div>
 
-        <br />
-
-        <div className="w-full flex items-center justify-center gap-3">
-          <span className="flex items-center w-[100px] h-[1px] bg-[rgba(0,0,0,0.2)]"></span>
-          <span className="text-[10px] lg:text-[14px] font-[500]">
-            Or, Sign Up with your email
-          </span>
-          <span className="flex items-center w-[100px] h-[1px] bg-[rgba(0,0,0,0.2)]"></span>
-        </div>
-
-        <br />
-
         <form className="w-full px-8 mt-3" onSubmit={handleSubmit}>
           <div className="form-group mb-4 w-full">
             <h4 className="text-[14px] font-[500] mb-1">Full Name</h4>
             <input
               type="text"
-              className="w-full h-[50px] border-2 border-[rgba(0,0,0,0.1)] rounded-md focus:border-[rgba(0,0,0,0.7)] focus:outline-none px-3"
+              className="w-full h-[45px] border-2 border-[rgba(0,0,0,0.1)] rounded-md focus:border-[rgba(0,0,0,0.7)] focus:outline-none px-3"
               name="name"
               value={formFields.name}
               disabled={isLoading === true ? true : false}
@@ -227,7 +207,7 @@ const SignUp = () => {
             <h4 className="text-[14px] font-[500] mb-1">Email</h4>
             <input
               type="email"
-              className="w-full h-[50px] border-2 border-[rgba(0,0,0,0.1)] rounded-md focus:border-[rgba(0,0,0,0.7)] focus:outline-none px-3"
+              className="w-full h-[45px] border-2 border-[rgba(0,0,0,0.1)] rounded-md focus:border-[rgba(0,0,0,0.7)] focus:outline-none px-3"
               name="email"
               value={formFields.email}
               disabled={isLoading === true ? true : false}
@@ -240,7 +220,7 @@ const SignUp = () => {
             <div className="relative w-full">
               <input
                 type={isPasswordShow === false ? "password" : "text"}
-                className="w-full h-[50px] border-2 border-[rgba(0,0,0,0.1)] rounded-md focus:border-[rgba(0,0,0,0.7)] focus:outline-none px-3"
+                className="w-full h-[45px] border-2 border-[rgba(0,0,0,0.1)] rounded-md focus:border-[rgba(0,0,0,0.7)] focus:outline-none px-3"
                 name="password"
                 value={formFields.password}
                 disabled={isLoading === true ? true : false}

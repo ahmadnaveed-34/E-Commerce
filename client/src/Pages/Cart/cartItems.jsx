@@ -7,15 +7,21 @@ import Rating from "@mui/material/Rating";
 import { IoCloseSharp } from "react-icons/io5";
 import { deleteData, editData, fetchDataFromApi } from "../../utils/api";
 import { MyContext } from "../../App";
+import { Button } from "@mui/material";
+import { FaMinus, FaPlus } from "react-icons/fa6";
 
 const CartItems = (props) => {
   const [sizeanchorEl, setSizeAnchorEl] = useState(null);
   const [selectedSize, setCartItems] = useState(props.selected);
   const openSize = Boolean(sizeanchorEl);
+  const [quantity, setQuantity] = useState();
 
   const [qtyanchorEl, setQtyAnchorEl] = useState(null);
   const [selectedQty, setSelectedQty] = useState(props.qty);
   const openQty = Boolean(qtyanchorEl);
+
+  const [productMaxQty, setProductMaxQuantity] = useState();
+  const [productSizes, setProductSizes] = useState([]);
 
   const numbers = Array.from(
     { length: 20 },
@@ -145,11 +151,65 @@ const CartItems = (props) => {
     }
   };
 
+  useEffect(() => {
+    // fetchDataFromApi(`/api/product/${props?.item?.productId}`).then((res) => {
+    //   if (res?.error !== true) {
+    //     setProductMaxQuantity(res?.product?.countInStock);
+    //   }
+    // });
+    setQuantity(props?.item?.quantity);
+    setProductMaxQuantity(props?.item?.countInStock);
+  }, []);
+
   const removeItem = (id) => {
     deleteData(`/api/cart/delete-cart-item/${id}`).then((res) => {
       context.alertBox("success", "Product removed from cart");
       context?.getCartItems();
     });
+  };
+
+  const addQty = () => {
+    if (productMaxQty > quantity) {
+      setQuantity(quantity + 1);
+
+      const cartObj = {
+        _id: props?.item?._id,
+        qty: quantity + 1,
+        subTotal: props?.item?.price * quantity + 1,
+      };
+
+      editData("/api/cart/update-qty", cartObj).then((res) => {
+        if (res?.data?.error === false) {
+          context.alertBox("success", res?.data?.message);
+          context?.getCartItems();
+        }
+      });
+    } else {
+      context.alertBox("error", "Selected quantity exceeds available stock.");
+    }
+  };
+
+  const minusQty = () => {
+    if (quantity !== 1 && quantity > 1) {
+      setQuantity(quantity - 1);
+    } else {
+      setQuantity(1);
+    }
+
+    if (quantity === 1) {
+      return false;
+    } else {
+      const cartObj = {
+        _id: props?.item?._id,
+        qty: quantity - 1,
+        subTotal: props?.item?.price * quantity + 1,
+      };
+
+      editData(`/api/cart/update-qty`, cartObj).then((res) => {
+        context.alertBox("success", res?.data?.message);
+        context?.getCartItems();
+      });
+    }
   };
 
   return (
@@ -159,6 +219,7 @@ const CartItems = (props) => {
           <img
             src={props?.item?.image}
             className="w-full group-hover:scale-105 transition-all"
+            alt="img"
           />
         </Link>
       </div>
@@ -174,7 +235,14 @@ const CartItems = (props) => {
             {props?.item?.productTitle?.substr(
               0,
               context?.windowWidth < 992 ? 30 : 120
-            ) + "..."}
+            )}
+            {context?.windowWidth < 992 &&
+              props?.item?.productTitle?.length > 30 &&
+              "..."}
+
+            {context?.windowWidth > 992 &&
+              props?.item?.productTitle?.length > 120 &&
+              "..."}
           </Link>
         </h3>
 
@@ -186,7 +254,7 @@ const CartItems = (props) => {
         />
 
         <div className="flex items-center gap-4 mt-2">
-          {props?.item?.size !== "" && (
+          {/* {props?.item?.size !== "" && (
             <>
               {props?.productSizeData?.length !== 0 && (
                 <div className="relative">
@@ -318,32 +386,24 @@ const CartItems = (props) => {
                 </div>
               )}
             </>
-          )}
+          )} */}
 
           <div className="relative">
-            <span
-              className="flex items-center justify-center bg-[#f1f1f1] text-[11px]
-     font-[600] py-1 px-2 rounded-md cursor-pointer"
-              onClick={handleClickQty}
-            >
-              Qty: {selectedQty} <GoTriangleDown />
-            </span>
-
-            <Menu
-              id="size-menu"
-              anchorEl={qtyanchorEl}
-              open={openQty}
-              onClose={() => handleCloseQty(null)}
-              MenuListProps={{
-                "aria-labelledby": "basic-button",
-              }}
-            >
-              {Array.from({ length: 15 }).map((_, index) => (
-                <MenuItem key={index} onClick={() => handleCloseQty(index + 1)}>
-                  {index + 1}
-                </MenuItem>
-              ))}
-            </Menu>
+            <div className="flex items-center justify-between overflow-hidden rounded-full border border-[rgba(0,0,0,0.1)] gap-2">
+              <Button
+                className="!min-w-[25px] !w-[25px] !h-[25px] !bg-[#f1f1f1]  !rounded-none"
+                onClick={minusQty}
+              >
+                <FaMinus className="text-[rgba(0,0,0,0.7)]" />
+              </Button>
+              <span>{quantity}</span>
+              <Button
+                className="!min-w-[25px] !w-[25px] !h-[25px] !bg-gray-800 !rounded-none"
+                onClick={addQty}
+              >
+                <FaPlus className="text-white" />
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -356,9 +416,9 @@ const CartItems = (props) => {
             Rs.{props?.item?.oldPrice}
           </span>
 
-          <span className="price text-primary text-[14px]  font-[600]">
+          {/* <span className="price text-primary text-[14px]  font-[600]">
             {props?.item?.discount}% OFF
-          </span>
+          </span> */}
         </div>
       </div>
     </div>

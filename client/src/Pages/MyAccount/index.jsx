@@ -102,6 +102,7 @@ const MyAccount = () => {
         if (res?.error !== true) {
           setIsLoading(false);
           context.alertBox("success", res?.data?.message);
+          context?.getUserDetails();
         } else {
           context.alertBox("error", res?.data?.message);
           setIsLoading(false);

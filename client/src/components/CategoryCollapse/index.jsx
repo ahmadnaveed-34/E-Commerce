@@ -39,7 +39,10 @@ export const CategoryCollapse = (props) => {
                   key={index}
                 >
                   <Link to={`/products?catId=${cat?._id}`} className="w-full">
-                    <Button className="w-full !text-left !justify-start !px-3 !text-[rgba(0,0,0,0.8)]">
+                    <Button
+                      className="w-full !text-left !justify-start !px-3 !text-[rgba(0,0,0,0.8)]"
+                      onClick={props?.toggleDrawer(false)}
+                    >
                       {cat?.name}
                     </Button>
                   </Link>
@@ -64,12 +67,15 @@ export const CategoryCollapse = (props) => {
                                 to={`/products?subCatId=${subCat?._id}`}
                                 className="w-full"
                               >
-                                <Button className="w-full !text-left !justify-start !px-3 !text-[rgba(0,0,0,0.8)]">
+                                <Button
+                                  className="w-full !text-left !justify-start !px-3 !text-[rgba(0,0,0,0.8)]"
+                                  onClick={props?.toggleDrawer(false)}
+                                >
                                   {subCat?.name}
                                 </Button>
                               </Link>
 
-                              <div
+                              {/* <div
                                 className="absolute w-[30px] h-[30px] flex items-center justify-center top-[10px] right-[15px]  cursor-pointer"
                                 onClick={() => openInnerSubmenu(index_)}
                               >
@@ -78,9 +84,9 @@ export const CategoryCollapse = (props) => {
                                 ) : (
                                   <FaRegSquarePlus />
                                 )}
-                              </div>
+                              </div> */}
 
-                              {innerSubmenuIndex === index_ && (
+                              {/* {innerSubmenuIndex === index_ && (
                                 <ul className="inner_submenu w-full pl-3">
                                   {subCat?.children?.length !== 0 &&
                                     subCat?.children?.map(
@@ -101,7 +107,7 @@ export const CategoryCollapse = (props) => {
                                       }
                                     )}
                                 </ul>
-                              )}
+                              )} */}
                             </li>
                           );
                         })}

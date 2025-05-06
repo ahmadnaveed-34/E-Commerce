@@ -72,8 +72,6 @@ const AddBlog = () => {
 
     setIsLoading(true);
 
-
-
     if (formFields.title === "") {
       context.alertBox("error", "Please enter title");
       setIsLoading(false);
@@ -106,8 +104,8 @@ const AddBlog = () => {
 
   return (
     <section className="p-5 bg-gray-50">
-      <form className="form py-1 p-1 md:p-8 md:py-1" onSubmit={handleSubmit}>
-        <div className="scroll max-h-[72vh] overflow-y-scroll pr-4 pt-4">
+      <form className="form py-1 p-1 md:p-2 md:py-1" onSubmit={handleSubmit}>
+        <div className="scroll max-h-[65vh] overflow-y-scroll pr-4 pt-4">
           <div className="grid grid-cols-1 mb-3">
             <div className="col w-[100%]">
               <h3 className="text-[14px] font-[500] mb-1 text-black"> Title</h3>
@@ -166,8 +164,6 @@ const AddBlog = () => {
             />
           </div>
         </div>
-
-        <br />
 
         <br />
         <div className="w-[250px]">

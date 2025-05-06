@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import InnerImageZoom from "react-inner-image-zoom";
 import "react-inner-image-zoom/lib/InnerImageZoom/styles.css";
 
@@ -21,6 +21,10 @@ export const ProductZoom = (props) => {
     zoomSliderBig.current.swiper.slideTo(index);
   };
 
+  useEffect(() => {
+    goto(context?.changeProductPicIndex);
+  }, [context?.changeProductPicIndex]);
+
   return (
     <>
       <div className="flex flex-col lg:flex-row gap-3">
@@ -36,20 +40,21 @@ export const ProductZoom = (props) => {
               props?.images?.length > 5 && "space"
             }`}
           >
-            {props?.images?.map((item, index) => {
-              return (
-                <SwiperSlide key={index}>
-                  <div
-                    className={`item rounded-md overflow-hidden cursor-pointer group h-[100%] ${
-                      slideIndex === index ? "opacity-1" : "opacity-30"
-                    }`}
-                    onClick={() => goto(index)}
-                  >
-                    <img src={item} alt="img" />
-                  </div>
-                </SwiperSlide>
-              );
-            })}
+            {[
+              ...(props?.images || []),
+              ...(props?.variantImages?.map((v) => v.image) || []),
+            ].map((img, index) => (
+              <SwiperSlide key={index}>
+                <div
+                  className={`item rounded-md overflow-hidden cursor-pointer group h-[100%] ${
+                    slideIndex === index ? "opacity-1" : "opacity-30"
+                  }`}
+                  onClick={() => goto(index)}
+                >
+                  <img src={img} alt="img" />
+                </div>
+              </SwiperSlide>
+            ))}
           </Swiper>
         </div>
 
@@ -60,13 +65,14 @@ export const ProductZoom = (props) => {
             spaceBetween={0}
             navigation={false}
           >
-            {props?.images?.map((item, index) => {
-              return (
-                <SwiperSlide key={index}>
-                  <InnerImageZoom zoomType="hover" zoomScale={1} src={item} />
-                </SwiperSlide>
-              );
-            })}
+            {[
+              ...(props?.images || []),
+              ...(props?.variantImages?.map((v) => v.image) || []),
+            ].map((img, index) => (
+              <SwiperSlide key={index}>
+                <InnerImageZoom zoomType="hover" zoomScale={1} src={img} />
+              </SwiperSlide>
+            ))}
           </Swiper>
         </div>
       </div>

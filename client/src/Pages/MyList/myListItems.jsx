@@ -35,7 +35,9 @@ const MyListItems = (props) => {
         <span className="text-[13px]">{props?.item?.brand}</span>
         <h3 className="text-[13px] sm:text-[15px]">
           <Link to={`/product/${props?.item?.productId}`} className="link">
-            {props?.item?.productTitle?.substr(0, 80) + "..."}
+            {props?.item?.productTitle?.length > 80
+              ? props?.item?.productTitle?.substr(0, 79) + "..."
+              : props?.item?.productTitle}
           </Link>
         </h3>
 
@@ -55,9 +57,9 @@ const MyListItems = (props) => {
             Rs.{props?.item?.oldPrice}
           </span>
 
-          <span className="price text-primary text-[14px]  font-[600]">
+          {/* <span className="price text-primary text-[14px]  font-[600]">
             {props?.item?.discount}% OFF
-          </span>
+          </span> */}
         </div>
       </div>
     </div>

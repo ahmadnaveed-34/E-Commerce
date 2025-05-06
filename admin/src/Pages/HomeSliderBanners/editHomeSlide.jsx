@@ -1,19 +1,15 @@
-import React, { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect } from "react";
 import UploadBox from "../../Components/UploadBox";
-import { LazyLoadImage } from "react-lazy-load-image-component";
+
 import "react-lazy-load-image-component/src/effects/blur.css";
 import { IoMdClose } from "react-icons/io";
 import { Button } from "@mui/material";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import { MyContext } from "../../App";
-import {
-  deleteImages,
-  editData,
-  fetchDataFromApi,
-  postData,
-} from "../../utils/api";
+import { deleteImages, editData, fetchDataFromApi } from "../../utils/api";
 import CircularProgress from "@mui/material/CircularProgress";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { MdInfoOutline } from "react-icons/md";
 
 const EditHomeSlide = () => {
   const [formFields, setFormFields] = useState({
@@ -91,9 +87,13 @@ const EditHomeSlide = () => {
   };
 
   return (
-    <section className="p-5 bg-gray-50">
-      <form className="form py-1 p-1 md:p-8 md:py-1" onSubmit={handleSubmit}>
+    <section className="p-3 bg-gray-50">
+      <form className="form py-1 p-1 md:p-4 md:py-1" onSubmit={handleSubmit}>
         <div className="scroll max-h-[72vh] overflow-y-scroll pr-4 pt-4">
+          <p className="flex items-center gap-2 text-sm text-blue-700 font-medium bg-blue-50 px-3 py-2 rounded-md border border-blue-200 mb-4">
+            <MdInfoOutline className="text-xl" />
+            Suggested resolution for home slider is <strong>1343 × 397</strong>
+          </p>
           <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
             {previews?.length !== 0 &&
               previews?.map((image, index) => {
@@ -121,8 +121,6 @@ const EditHomeSlide = () => {
             />
           </div>
         </div>
-
-        <br />
 
         <br />
         <div className="w-[250px]">

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Button } from "@mui/material";
+import { Button, FormControl, InputLabel } from "@mui/material";
 import Rating from "@mui/material/Rating";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -22,6 +22,7 @@ import {
   fetchDataFromApi,
   deleteData,
   deleteMultipleData,
+  postData,
 } from "../../utils/api";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
@@ -33,37 +34,37 @@ import "yet-another-react-lightbox/styles.css";
 const label = { inputProps: { "aria-label": "Checkbox demo" } };
 
 const columns = [
-  { id: "product", label: "PRODUCT", minWidth: 150 },
-  { id: "category", label: "CATEGORY", minWidth: 100 },
+  { id: "product", label: "PRODUCT", minWidth: 60 },
+  { id: "category", label: "CATEGORY", minWidth: 60 },
   {
     id: "subcategory",
     label: "SUB CATEGORY",
     minWidth: 150,
   },
-  {
-    id: "price",
-    label: "PRICE",
-    minWidth: 130,
-  },
+  // {
+  //   id: "price",
+  //   label: "PRICE",
+  //   minWidth: 130,
+  // },
   {
     id: "sales",
     label: "SALES",
-    minWidth: 100,
+    minWidth: 40,
   },
-  {
-    id: "stock",
-    label: "STOCK",
-    minWidth: 100,
-  },
+  // {
+  //   id: "stock",
+  //   label: "STOCK",
+  //   minWidth: 100,
+  // },
   {
     id: "rating",
     label: "RATING",
-    minWidth: 100,
+    minWidth: 40,
   },
   {
     id: "action",
     label: "ACTION",
-    minWidth: 120,
+    minWidth: 40,
   },
 ];
 
@@ -76,6 +77,7 @@ export const Products = () => {
   const [productTotalData, setProductTotalData] = useState([]);
 
   const [productSubCat, setProductSubCat] = React.useState("");
+  const [filteredProductSubCat, setFilteredProductSubCat] = React.useState("");
   const [productThirdLavelCat, setProductThirdLavelCat] = useState("");
   const [sortedIds, setSortedIds] = useState([]);
   const [isLoading, setIsloading] = useState(false);
@@ -87,6 +89,10 @@ export const Products = () => {
   const [open, setOpen] = useState(false);
 
   const context = useContext(MyContext);
+
+  const [filteredCatName, setFilteredCatName] = useState("");
+  const [filteredCatId, setFilteredCatId] = useState("");
+  const [filteredSubCat, setFilteredSubCat] = useState([]);
 
   useEffect(() => {
     getProducts(page, rowsPerPage);
@@ -195,9 +201,10 @@ export const Products = () => {
       setProductSubCat("");
       setProductThirdLavelCat("");
       setIsloading(true);
-      fetchDataFromApi(
-        `/api/product/getAllProductsByCatId/${event.target.value}`
-      ).then((res) => {
+      const obj = {
+        category: event.target.value,
+      };
+      postData(`/api/product/getProductByCatAndSubCat`, obj).then((res) => {
         if (res?.error === false) {
           setProductData({
             error: false,
@@ -208,6 +215,44 @@ export const Products = () => {
             totalPages: Math.ceil(res?.products?.length / rowsPerPage),
             totalCount: res?.products?.length,
           });
+          setFilteredSubCat(res?.subCat);
+
+          setTimeout(() => {
+            setIsloading(false);
+          }, 300);
+        }
+      });
+    } else {
+      setFilteredSubCat("");
+
+      getProducts(0, 50);
+      setProductSubCat("");
+      setProductCat(event.target.value);
+      setProductThirdLavelCat("");
+    }
+  };
+
+  const handleChangeFilteredProductCat = (event) => {
+    if (event.target.value !== null) {
+      setProductCat(event.target.value);
+      setProductSubCat("");
+      setProductThirdLavelCat("");
+      setIsloading(true);
+      const obj = {
+        category: event.target.value,
+      };
+      postData(`/api/product/getProductByCatAndSubCat`, obj).then((res) => {
+        if (res?.error === false) {
+          setProductData({
+            error: false,
+            success: true,
+            products: res?.products,
+            total: res?.products?.length,
+            page: parseInt(page),
+            totalPages: Math.ceil(res?.products?.length / rowsPerPage),
+            totalCount: res?.products?.length,
+          });
+          setFilteredSubCat(res?.subCat);
 
           setTimeout(() => {
             setIsloading(false);
@@ -228,9 +273,10 @@ export const Products = () => {
       setProductCat("");
       setProductThirdLavelCat("");
       setIsloading(true);
-      fetchDataFromApi(
-        `/api/product/getAllProductsBySubCatId/${event.target.value}`
-      ).then((res) => {
+      const obj = {
+        subCatgory: event.target.value,
+      };
+      postData(`/api/product/getProductByCatAndSubCat`, obj).then((res) => {
         if (res?.error === false) {
           setProductData({
             error: false,
@@ -241,12 +287,18 @@ export const Products = () => {
             totalPages: Math.ceil(res?.products?.length / rowsPerPage),
             totalCount: res?.products?.length,
           });
+
+          setFilteredCatName(res?.products[0]?.catName);
+          setFilteredCatId(res?.products[0]?.catId);
+
           setTimeout(() => {
             setIsloading(false);
           }, 500);
         }
       });
     } else {
+      setFilteredCatId("");
+      setFilteredCatName("");
       setProductSubCat(event.target.value);
       getProducts(0, 50);
       setProductCat("");
@@ -254,15 +306,17 @@ export const Products = () => {
     }
   };
 
-  const handleChangeProductThirdLavelCat = (event) => {
+  const handleChangeFilteredProductSubCat = (event) => {
     if (event.target.value !== null) {
-      setProductThirdLavelCat(event.target.value);
-      setProductCat("");
-      setProductSubCat("");
+      setFilteredProductSubCat(event.target.value);
+
       setIsloading(true);
-      fetchDataFromApi(
-        `/api/product/getAllProductsByThirdLavelCat/${event.target.value}`
-      ).then((res) => {
+
+      const obj = {
+        category: productCat,
+        subCatgory: event.target.value,
+      };
+      postData(`/api/product/getProductByCatAndSubCat`, obj).then((res) => {
         if (res?.error === false) {
           setProductData({
             error: false,
@@ -273,18 +327,70 @@ export const Products = () => {
             totalPages: Math.ceil(res?.products?.length / rowsPerPage),
             totalCount: res?.products?.length,
           });
+
+          setTimeout(() => {
+            setIsloading(false);
+          }, 500);
+        }
+      });
+    } else {
+      setFilteredProductSubCat("");
+
+      const obj = {
+        category: productCat,
+      };
+      postData(`/api/product/getProductByCatAndSubCat`, obj).then((res) => {
+        if (res?.error === false) {
+          setProductData({
+            error: false,
+            success: true,
+            products: res?.products,
+            total: res?.products?.length,
+            page: parseInt(page),
+            totalPages: Math.ceil(res?.products?.length / rowsPerPage),
+            totalCount: res?.products?.length,
+          });
+          setFilteredSubCat(res?.subCat);
+
           setTimeout(() => {
             setIsloading(false);
           }, 300);
         }
       });
-    } else {
-      setProductThirdLavelCat(event.target.value);
-      getProducts(0, 50);
-      setProductCat("");
-      setProductSubCat("");
     }
   };
+
+  // const handleChangeProductThirdLavelCat = (event) => {
+  //   if (event.target.value !== null) {
+  //     setProductThirdLavelCat(event.target.value);
+  //     setProductCat("");
+  //     setProductSubCat("");
+  //     setIsloading(true);
+  //     fetchDataFromApi(
+  //       `/api/product/getAllProductsByThirdLavelCat/${event.target.value}`
+  //     ).then((res) => {
+  //       if (res?.error === false) {
+  //         setProductData({
+  //           error: false,
+  //           success: true,
+  //           products: res?.products,
+  //           total: res?.products?.length,
+  //           page: parseInt(page),
+  //           totalPages: Math.ceil(res?.products?.length / rowsPerPage),
+  //           totalCount: res?.products?.length,
+  //         });
+  //         setTimeout(() => {
+  //           setIsloading(false);
+  //         }, 300);
+  //       }
+  //     });
+  //   } else {
+  //     setProductThirdLavelCat(event.target.value);
+  //     getProducts(0, 50);
+  //     setProductCat("");
+  //     setProductSubCat("");
+  //   }
+  // };
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(+event.target.value);
@@ -296,6 +402,12 @@ export const Products = () => {
       deleteData(`/api/product/${id}`).then((res) => {
         getProducts();
         context.alertBox("success", "Product deleted");
+        setFilteredCatName("");
+        setFilteredSubCat([]);
+        setProductSubCat("");
+        setProductCat("");
+        setFilteredCatId("");
+        setSortedIds([]);
       });
     } else {
       context.alertBox("error", "Only admin can delete data");
@@ -312,6 +424,11 @@ export const Products = () => {
       deleteMultipleData(`/api/product/deleteMultiple`, {
         data: { ids: sortedIds },
       }).then((res) => {
+        setFilteredCatName("");
+        setFilteredSubCat([]);
+        setProductSubCat("");
+        setProductCat("");
+        setFilteredCatId("");
         getProducts();
         context.alertBox("success", "Product deleted");
         setSortedIds([]);
@@ -361,31 +478,53 @@ export const Products = () => {
       </div>
 
       <div className="card my-4 pt-5 shadow-md sm:rounded-lg bg-white">
-        <div className="grid grid-cols-1 sm:grid-cols-2  md:grid-cols-2 lg:grid-cols-4 w-full px-5 justify-beetween gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2  md:grid-cols-2 lg:grid-cols-3 w-full px-5 justify-beetween gap-4">
           <div className="col">
             <h4 className="font-[600] text-[13px] mb-2">Category By</h4>
-            {context?.catData?.length !== 0 && (
-              <Select
-                style={{ zoom: "80%" }}
-                labelId="demo-simple-select-label"
-                id="productCatDrop"
-                size="small"
-                className="w-full"
-                value={productCat}
-                label="Category"
-                onChange={handleChangeProductCat}
-              >
-                <MenuItem value={null}>None</MenuItem>
-                {context?.catData?.map((cat, index) => {
-                  return <MenuItem value={cat?._id}>{cat?.name}</MenuItem>;
-                })}
-              </Select>
+            {context?.catData?.length !== 0 &&
+              filteredCatName === "" &&
+              filteredCatId === "" && (
+                <Select
+                  style={{ zoom: "80%" }}
+                  labelId="demo-simple-select-label"
+                  id="productCatDrop"
+                  size="small"
+                  className="w-full"
+                  value={productCat}
+                  label="Category"
+                  onChange={handleChangeProductCat}
+                >
+                  <MenuItem value={null}>None</MenuItem>
+                  {context?.catData?.map((cat, index) => {
+                    return (
+                      <MenuItem key={index} value={cat?._id}>
+                        {cat?.name}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              )}
+
+            {filteredCatId !== "" && filteredCatName !== "" && (
+              <FormControl fullWidth size="small" style={{ zoom: "80%" }}>
+                <Select
+                  labelId="productCatDrop-label"
+                  id="productCatDrop"
+                  value={filteredCatId}
+                  label="Category"
+                  onChange={handleChangeFilteredProductCat}
+                >
+                  <MenuItem value={filteredCatId} disabled>
+                    {filteredCatName}
+                  </MenuItem>
+                </Select>
+              </FormControl>
             )}
           </div>
 
           <div className="col">
             <h4 className="font-[600] text-[13px] mb-2">Sub Category By</h4>
-            {context?.catData?.length !== 0 && (
+            {context?.catData?.length !== 0 && filteredSubCat?.length === 0 && (
               <Select
                 style={{ zoom: "80%" }}
                 labelId="demo-simple-select-label"
@@ -402,16 +541,40 @@ export const Products = () => {
                     cat?.children?.length !== 0 &&
                     cat?.children?.map((subCat, index_) => {
                       return (
-                        <MenuItem value={subCat?._id}>{subCat?.name}</MenuItem>
+                        <MenuItem key={index_} value={subCat?._id}>
+                          {subCat?.name}
+                        </MenuItem>
                       );
                     })
                   );
                 })}
               </Select>
             )}
+
+            {filteredSubCat?.length > 0 && (
+              <Select
+                style={{ zoom: "80%" }}
+                labelId="demo-simple-select-label"
+                id="productCatDrop"
+                size="small"
+                className="w-full"
+                value={filteredProductSubCat}
+                label="Sub Category"
+                onChange={handleChangeFilteredProductSubCat}
+              >
+                <MenuItem value={null}>None</MenuItem>
+                {filteredSubCat.map((subCat, index) => {
+                  return (
+                    <MenuItem key={index} value={subCat?._id}>
+                      {subCat?.name}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            )}
           </div>
 
-          <div className="col">
+          {/* <div className="col">
             <h4 className="font-[600] text-[13px] mb-2">
               Third Level Sub Category By
             </h4>
@@ -446,7 +609,7 @@ export const Products = () => {
                 })}
               </Select>
             )}
-          </div>
+          </div> */}
 
           <div className="col w-full ml-auto flex items-center">
             <div style={{ alignSelf: "end" }} className="w-full">
@@ -510,13 +673,10 @@ export const Products = () => {
                       </TableCell>
                       <TableCell style={{ minWidth: columns.minWidth }}>
                         <div
-                          className="flex items-center gap-4 w-[300px]"
+                          className="flex items-center gap-4 w-[150px]"
                           title={product?.name}
                         >
-                          <div
-                            className="img w-[65px] h-[65px] rounded-md overflow-hidden group cursor-pointer"
-                            onClick={() => setOpen(true)}
-                          >
+                          <div className="img w-[65px] h-[65px] rounded-md overflow-hidden group cursor-pointer">
                             <LazyLoadImage
                               alt={"image"}
                               effect="blur"
@@ -524,11 +684,13 @@ export const Products = () => {
                               className="w-full group-hover:scale-105 transition-all"
                             />
                           </div>
-                          <div className="info w-[75%]">
-                            <h3 className="font-[600] text-[12px] leading-4 hover:text-primary">
-                              <Link to={`/product/${product?._id}`}>
-                                {product?.name?.substr(0, 50) + "..."}
-                              </Link>
+                          <div className="info w-[30%]">
+                            <h3 className="font-[600] text-[12px] leading-4 ">
+                              {/* <Link to={`/product/${product?._id}`}> */}
+                              {product?.name?.length > 11
+                                ? product?.name?.substr(0, 11) + "..."
+                                : product?.name}
+                              {/* </Link> */}
                             </h3>
                             <span className="text-[12px]">
                               {product?.brand}
@@ -545,7 +707,7 @@ export const Products = () => {
                         {product?.subCat}
                       </TableCell>
 
-                      <TableCell style={{ minWidth: columns.minWidth }}>
+                      {/* <TableCell style={{ minWidth: columns.minWidth }}>
                         <div className="flex gap-1 flex-col">
                           <span className="oldPrice line-through leading-3 text-gray-500 text-[14px] font-[500]">
                             {product?.price?.toLocaleString("en-US", {
@@ -560,7 +722,7 @@ export const Products = () => {
                             })}
                           </span>
                         </div>
-                      </TableCell>
+                      </TableCell> */}
 
                       <TableCell style={{ minWidth: columns.minWidth }}>
                         <p className="text-[14px] w-[70px]">
@@ -569,13 +731,13 @@ export const Products = () => {
                         </p>
                       </TableCell>
 
-                      <TableCell style={{ minWidth: columns.minWidth }}>
+                      {/* <TableCell style={{ minWidth: columns.minWidth }}>
                         <p className="text-[14px] w-[70px]">
                           <span className="font-[600] text-primary">
                             {product?.countInStock}
                           </span>
                         </p>
-                      </TableCell>
+                      </TableCell> */}
 
                       <TableCell style={{ minWidth: columns.minWidth }}>
                         <p className="text-[14px] w-[100px]">
@@ -602,12 +764,12 @@ export const Products = () => {
                           >
                             <AiOutlineEdit className="text-[rgba(0,0,0,0.7)] text-[20px] " />
                           </Button>
-
+                          {/* 
                           <Link to={`/product/${product?._id}`}>
                             <Button className="!w-[35px] !h-[35px] bg-[#f1f1f1] !border !border-[rgba(0,0,0,0.4)] !rounded-full hover:!bg-[#f1f1f1] !min-w-[35px]">
                               <FaRegEye className="text-[rgba(0,0,0,0.7)] text-[18px] " />
                             </Button>
-                          </Link>
+                          </Link> */}
 
                           <Button
                             className="!w-[35px] !h-[35px] bg-[#f1f1f1] !border !border-[rgba(0,0,0,0.4)] !rounded-full hover:!bg-[#f1f1f1] !min-w-[35px]"

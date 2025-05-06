@@ -149,7 +149,6 @@ const Login = () => {
           }
         });
 
-      
         // IdP data available using getAdditionalUserInfo(result)
         // ...
       })
@@ -165,10 +164,10 @@ const Login = () => {
       });
   };
   return (
-    <section className="bg-white w-full">
-      <header className="w-full static lg:fixed top-0 left-0  px-4 py-3 flex items-center justify-center sm:justify-between z-50">
+    <section className="w-full">
+      <header className="w-full static lg:fixed top-0 left-0  px-4 flex items-center justify-center sm:justify-between z-50">
         <Link to="/">
-          <img src={localStorage.getItem("logo")} className="w-[200px]" />
+          <img src={localStorage.getItem("logo")} className="w-[130px]" />
         </Link>
 
         <div className="hidden sm:flex items-center gap-0">
@@ -187,18 +186,14 @@ const Login = () => {
       </header>
       <img src="/patern.webp" className="w-full fixed top-0 left-0 opacity-5" />
 
-      <div className="loginBox card w-full md:w-[600px] h-[auto] pb-20 mx-auto pt-5 lg:pt-20 relative z-50">
-        <div className="text-center">
-          <img src="/icon.svg" className="m-auto" />
-        </div>
-
-        <h1 className="text-center text-[18px] sm:text-[35px] font-[800] mt-4">
+      <div className="loginBox card w-full md:w-[600px] h-[auto] pb-3 mx-auto pt-2 lg:pt-12 relative z-50">
+        <h1 className="text-center text-[18px] sm:text-[25px] font-[800] mt-4">
           Welcome Back!
           <br />
           Sign in with your credentials.
         </h1>
 
-        <div className="flex items-center justify-center w-full mt-5 gap-4">
+        <div className="flex items-center justify-center w-full mt-3 gap-4">
           <LoadingButton
             size="small"
             onClick={authWithGoogle}
@@ -212,24 +207,12 @@ const Login = () => {
           </LoadingButton>
         </div>
 
-        <br />
-
-        <div className="w-full flex items-center justify-center gap-3">
-          <span className="flex items-center w-[100px] h-[1px] bg-[rgba(0,0,0,0.2)]"></span>
-          <span className="text-[10px] lg:text-[14px] font-[500]">
-            Or, Sign in with your email
-          </span>
-          <span className="flex items-center w-[100px] h-[1px] bg-[rgba(0,0,0,0.2)]"></span>
-        </div>
-
-        <br />
-
         <form className="w-full px-8 mt-3" onSubmit={handleSubmit}>
           <div className="form-group mb-4 w-full">
             <h4 className="text-[14px] font-[500] mb-1">Email</h4>
             <input
               type="email"
-              className="w-full h-[50px] border-2 border-[rgba(0,0,0,0.1)] rounded-md focus:border-[rgba(0,0,0,0.7)] focus:outline-none px-3"
+              className="w-full h-[45px] border-2 border-[rgba(0,0,0,0.1)] rounded-md focus:border-[rgba(0,0,0,0.7)] focus:outline-none px-3"
               name="email"
               value={formFields.email}
               disabled={isLoading === true ? true : false}
@@ -242,7 +225,7 @@ const Login = () => {
             <div className="relative w-full">
               <input
                 type={isPasswordShow === false ? "password" : "text"}
-                className="w-full h-[50px] border-2 border-[rgba(0,0,0,0.1)] rounded-md focus:border-[rgba(0,0,0,0.7)] focus:outline-none px-3"
+                className="w-full h-[45px] border-2 border-[rgba(0,0,0,0.1)] rounded-md focus:border-[rgba(0,0,0,0.7)] focus:outline-none px-3"
                 name="password"
                 value={formFields.password}
                 disabled={isLoading === true ? true : false}
@@ -261,7 +244,7 @@ const Login = () => {
             </div>
           </div>
 
-          <div className="form-group mb-4 w-full flex items-center justify-end">
+          <div className="form-group mb-2 w-full flex items-center justify-end">
             <a
               onClick={forgotPassword}
               className="text-primary font-[700] text-[15px] hover:underline hover:text-gray-700 cursor-pointer"
@@ -270,7 +253,7 @@ const Login = () => {
             </a>
           </div>
 
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2 justify-between mb-2">
             <span className="text-[14px]">Don't have an account?</span>
             <Link
               to="/sign-up"

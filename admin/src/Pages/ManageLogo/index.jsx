@@ -94,12 +94,14 @@ const ManageLogo = () => {
     if (editMode === true) {
       editData(`/api/logo/${logoId}`, formFields).then((res) => {
         context.alertBox("success", "logo updated successfully");
+        context?.setFetchAgainData(Math.floor(Math.random() * 10000000000));
         setTimeout(() => {
           setIsLoading(false);
         }, 2500);
       });
     } else {
       postData(`/api/logo/add`, formFields).then((res) => {
+        context.alertBox("success", "logo updated successfully");
         setLogoId(res?.logo?._id);
         context.alertBox("success", "Logo add successfully");
         setTimeout(() => {

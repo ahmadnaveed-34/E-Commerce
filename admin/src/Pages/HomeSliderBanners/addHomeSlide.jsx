@@ -9,6 +9,7 @@ import { MyContext } from "../../App";
 import { deleteImages, postData } from "../../utils/api";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useNavigate } from "react-router-dom";
+import { MdInfoOutline } from "react-icons/md";
 
 const AddHomeSlide = () => {
   const [formFields, setFormFields] = useState({
@@ -73,9 +74,13 @@ const AddHomeSlide = () => {
   };
 
   return (
-    <section className="p-5 bg-gray-50">
+    <section className="p-4 bg-gray-50">
       <form className="form py-1 p-1 md:p-8 md:py-1" onSubmit={handleSubmit}>
         <div className="scroll max-h-[72vh] overflow-y-scroll pr-4 pt-4">
+          <p className="flex items-center gap-2 text-sm text-blue-700 font-medium bg-blue-50 px-3 py-2 rounded-md border border-blue-200 mb-4">
+            <MdInfoOutline className="text-xl" />
+            Suggested resolution for home slider is <strong>1343 × 397</strong>
+          </p>
           <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
             {previews?.length !== 0 &&
               previews?.map((image, index) => {

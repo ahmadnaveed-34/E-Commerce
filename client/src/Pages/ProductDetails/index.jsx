@@ -105,7 +105,10 @@ export const ProductDetails = () => {
           <>
             <div className="container flex gap-8 flex-col lg:flex-row items-start lg:items-center">
               <div className="productZoomContainer w-full lg:w-[40%]">
-                <ProductZoom images={productData?.images} />
+                <ProductZoom
+                  images={productData?.images}
+                  variantImages={productData?.variants}
+                />
               </div>
 
               <div className="productContent w-full lg:w-[60%] pr-2 pl-2 lg:pr-10 lg:pl-10">

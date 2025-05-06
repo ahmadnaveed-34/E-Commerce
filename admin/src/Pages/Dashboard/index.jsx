@@ -1,4 +1,4 @@
-import React, { useState, PureComponent, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import DashboardBoxes from "../../Components/DashboardBoxes";
 import { FaPlus } from "react-icons/fa6";
 import { Button, Pagination } from "@mui/material";
@@ -7,8 +7,6 @@ import Badge from "../../Components/Badge";
 import { FaAngleUp } from "react-icons/fa6";
 
 import {
-  LineChart,
-  Line,
   BarChart,
   Bar,
   XAxis,
@@ -16,7 +14,6 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
 } from "recharts";
 
 import { MyContext } from "../../App";
@@ -237,40 +234,26 @@ const Dashboard = () => {
           <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50  ">
               <tr>
-                <th scope="col" className="px-6 py-3">
+                <th scope="col" className="px-2 py-3">
                   &nbsp;
                 </th>
-                <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                  Order Id
-                </th>
-                <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                  Paymant Id
-                </th>
+
                 <th scope="col" className="px-6 py-3 whitespace-nowrap">
                   Name
                 </th>
+
                 <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                  Phone Number
+                  Address and Phone Number
                 </th>
-                <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                  Address
-                </th>
-                <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                  Pincode
-                </th>
-                <th scope="col" className="px-6 py-3 whitespace-nowrap">
+
+                <th scope="col" className="px-3 py-3 whitespace-nowrap">
                   Total Amount
                 </th>
-                <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                  Email
-                </th>
-                <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                  User Id
-                </th>
-                <th scope="col" className="px-6 py-3 whitespace-nowrap">
+
+                <th scope="col" className="px-3 py-3 whitespace-nowrap">
                   Order Status
                 </th>
-                <th scope="col" className="px-6 py-3 whitespace-nowrap">
+                <th scope="col" className="px-1 py-3 whitespace-nowrap">
                   Date
                 </th>
               </tr>
@@ -280,10 +263,10 @@ const Dashboard = () => {
                 ordersData?.map((order, index) => {
                   return (
                     <>
-                      <tr className="bg-white border-b ">
-                        <td className="px-6 py-4 font-[500]">
+                      <tr className="bg-white border-b">
+                        <td className="px-2 py-4 font-[500]">
                           <Button
-                            className="!w-[35px] !h-[35px] !min-w-[35px] !rounded-full !bg-[#f1f1f1]"
+                            className="!w-[25px] !h-[25px] !min-w-[25px] !rounded-full !bg-[#f1f1f1]"
                             onClick={() => isShowOrderdProduct(index)}
                           >
                             {isOpenOrderdProduct === index ? (
@@ -293,31 +276,16 @@ const Dashboard = () => {
                             )}
                           </Button>
                         </td>
-                        <td className="px-6 py-4 font-[500]">
-                          <span className="text-primary">{order?._id}</span>
-                        </td>
-
-                        <td className="px-6 py-4 font-[500]">
-                          <span className="text-primary whitespace-nowrap text-[13px]">
-                            {order?.paymentId
-                              ? order?.paymentId
-                              : "CASH ON DELIVERY"}
-                          </span>
-                        </td>
 
                         <td className="px-6 py-4 font-[500] whitespace-nowrap">
                           {order?.userId?.name}
                         </td>
 
                         <td className="px-6 py-4 font-[500]">
-                          {order?.delivery_address?.mobile}
-                        </td>
-
-                        <td className="px-6 py-4 font-[500]">
                           <span className="inline-block text-[13px] font-[500] p-1 bg-[#f1f1f1] rounded-md">
                             {order?.delivery_address?.addressType}
                           </span>
-                          <span className="block w-[400px]">
+                          <span className="block w-[230px]">
                             {order?.delivery_address?.address_line1 +
                               " " +
                               order?.delivery_address?.city +
@@ -328,32 +296,19 @@ const Dashboard = () => {
                               " " +
                               order?.delivery_address?.country +
                               " " +
+                              "+" +
                               order?.delivery_address?.mobile}
                           </span>
                         </td>
 
-                        <td className="px-6 py-4 font-[500]">
-                          {order?.delivery_address?.pincode}
-                        </td>
-
-                        <td className="px-6 py-4 font-[500]">
+                        <td className="px-3 py-4 font-[500]">
                           {order?.totalAmt}
                         </td>
 
-                        <td className="px-6 py-4 font-[500]">
-                          {order?.userId?.email}
-                        </td>
-
-                        <td className="px-6 py-4 font-[500]">
-                          <span className="text-primary">
-                            {order?.userId?._id}
-                          </span>
-                        </td>
-
-                        <td className="px-6 py-4 font-[500]">
+                        <td className="px-3 py-4 font-[500]">
                           <Badge status={order?.order_status} />
                         </td>
-                        <td className="px-6 py-4 font-[500] whitespace-nowrap">
+                        <td className="px-1 py-4 font-[500] whitespace-nowrap">
                           {order?.createdAt?.split("T")[0]}
                         </td>
                       </tr>
@@ -365,12 +320,6 @@ const Dashboard = () => {
                               <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
                                 <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                                   <tr>
-                                    <th
-                                      scope="col"
-                                      className="px-6 py-3 whitespace-nowrap"
-                                    >
-                                      Product Id
-                                    </th>
                                     <th
                                       scope="col"
                                       className="px-6 py-3 whitespace-nowrap"
@@ -410,11 +359,6 @@ const Dashboard = () => {
                                         key={index}
                                         className="bg-white border-b "
                                       >
-                                        <td className="px-6 py-4 font-[500]">
-                                          <span className="text-gray-600">
-                                            {item?._id}
-                                          </span>
-                                        </td>
                                         <td className="px-6 py-4 font-[500]">
                                           <div className="w-[200px]">
                                             {item?.productTitle}

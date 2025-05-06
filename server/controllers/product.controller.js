@@ -6,6 +6,8 @@ import ProductSIZEModel from "../models/productSIZE.js";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 import { request } from "http";
+import CategoryModel from "../models/category.modal.js";
+import { error } from "console";
 
 cloudinary.config({
   cloud_name: process.env.cloudinary_Config_Cloud_Name,
@@ -90,6 +92,17 @@ export async function uploadBannerImages(request, response) {
 //create product
 export async function createProduct(request, response) {
   try {
+    const variants = request.body.variants;
+
+    // ✅ Validate variants before using
+    if (!variants || !Array.isArray(variants) || variants.length === 0) {
+      return response.status(400).json({
+        success: false,
+        error: true,
+        message: "Please add at least one product variant",
+      });
+    }
+
     let product = new ProductModel({
       name: request.body.name,
       description: request.body.description,
@@ -98,31 +111,23 @@ export async function createProduct(request, response) {
       bannerTitleName: request.body.bannerTitleName,
       isDisplayOnHomeBanner: request.body.isDisplayOnHomeBanner,
       brand: request.body.brand,
-      price: request.body.price,
-      oldPrice: request.body.oldPrice,
       catName: request.body.catName,
       category: request.body.category,
       catId: request.body.catId,
       subCatId: request.body.subCatId,
       subCat: request.body.subCat,
-      thirdsubCat: request.body.thirdsubCat,
-      thirdsubCatId: request.body.thirdsubCatId,
-      countInStock: request.body.countInStock,
       rating: request.body.rating,
       isFeatured: request.body.isFeatured,
-      discount: request.body.discount,
-      productRam: request.body.productRam,
-      size: request.body.size,
-      productWeight: request.body.productWeight,
+      variants: variants,
     });
 
     product = await product.save();
 
     if (!product) {
-      response.status(500).json({
+      return response.status(500).json({
         error: true,
         success: false,
-        message: "Product Not created",
+        message: "Failed to create product",
       });
     }
 
@@ -221,6 +226,118 @@ export async function getAllProductsByCatId(request, response) {
       totalPages: totalPages,
       page: page,
     });
+  } catch (error) {
+    return response.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
+  }
+}
+
+// Get Product By Category and Sub Category
+
+export async function getProductByCatAndSubCat(request, response) {
+  try {
+    const { category, subCatgory } = request.body;
+    if (!category && !subCatgory) {
+      return response.status(400).json({
+        success: false,
+        error: true,
+        message: "Please provide category or sub category",
+      });
+    }
+
+    const page = parseInt(request.query.page) || 1;
+    const perPage = parseInt(request.query.perPage) || 10000;
+
+    const totalPosts = await ProductModel.countDocuments();
+    const totalPages = Math.ceil(totalPosts / perPage);
+
+    if (page > totalPages) {
+      return response.status(404).json({
+        message: "Page not found",
+        success: false,
+        error: true,
+      });
+    }
+
+    if (category && !subCatgory) {
+      const products = await ProductModel.find({
+        catId: category,
+      })
+        .populate("category")
+        .skip((page - 1) * perPage)
+        .limit(perPage)
+        .exec();
+
+      const getAllSubCategories = await CategoryModel.find({
+        parentId: category,
+      });
+
+      if (!products) {
+        response.status(500).json({
+          error: true,
+          success: false,
+        });
+      }
+
+      return response.status(200).json({
+        error: false,
+        success: true,
+        products: products,
+        subCat: getAllSubCategories,
+        totalPages: totalPages,
+        page: page,
+      });
+    } else if (category && subCatgory) {
+      const products = await ProductModel.find({
+        catId: category,
+        subCatId: subCatgory,
+      })
+        .populate("category")
+        .skip((page - 1) * perPage)
+        .limit(perPage)
+        .exec();
+
+      if (!products) {
+        response.status(500).json({
+          error: true,
+          success: false,
+        });
+      }
+
+      return response.status(200).json({
+        error: false,
+        success: true,
+        products: products,
+        totalPages: totalPages,
+        page: page,
+      });
+    } else if (subCatgory) {
+      const products = await ProductModel.find({
+        subCatId: subCatgory,
+      })
+        .populate("category")
+        .skip((page - 1) * perPage)
+        .limit(perPage)
+        .exec();
+
+      if (!products) {
+        response.status(500).json({
+          error: true,
+          success: false,
+        });
+      }
+
+      return response.status(200).json({
+        error: false,
+        success: true,
+        products: products,
+        totalPages: totalPages,
+        page: page,
+      });
+    }
   } catch (error) {
     return response.status(500).json({
       message: error.message || error,
@@ -837,50 +954,51 @@ export async function removeImageFromCloudinary(request, response) {
 //updated product
 export async function updateProduct(request, response) {
   try {
-    const product = await ProductModel.findByIdAndUpdate(
+    const variants = request.body.variants;
+
+    if (!variants || !Array.isArray(variants) || variants.length === 0) {
+      return response.status(400).json({
+        success: false,
+        error: true,
+        message: "Please add at least one product variant",
+      });
+    }
+
+    const updatedProduct = await ProductModel.findByIdAndUpdate(
       request.params.id,
       {
         name: request.body.name,
-        subCat: request.body.subCat,
         description: request.body.description,
+        images: request.body.images,
         bannerimages: request.body.bannerimages,
         bannerTitleName: request.body.bannerTitleName,
         isDisplayOnHomeBanner: request.body.isDisplayOnHomeBanner,
-        images: request.body.images,
-        bannerTitleName: request.body.bannerTitleName,
         brand: request.body.brand,
-        price: request.body.price,
-        oldPrice: request.body.oldPrice,
-        catId: request.body.catId,
         catName: request.body.catName,
-        subCat: request.body.subCat,
-        subCatId: request.body.subCatId,
         category: request.body.category,
-        thirdsubCat: request.body.thirdsubCat,
-        thirdsubCatId: request.body.thirdsubCatId,
-        countInStock: request.body.countInStock,
+        catId: request.body.catId,
+        subCatId: request.body.subCatId,
+        subCat: request.body.subCat,
         rating: request.body.rating,
         isFeatured: request.body.isFeatured,
-        productRam: request.body.productRam,
-        size: request.body.size,
-        productWeight: request.body.productWeight,
+        variants: variants,
       },
       { new: true }
     );
 
-    if (!product) {
+    if (!updatedProduct) {
       return response.status(404).json({
-        message: "the product can not be updated!",
-        status: false,
+        message: "The product cannot be updated!",
+        error: true,
+        success: false,
       });
     }
 
-    imagesArr = [];
-
     return response.status(200).json({
-      message: "The product is updated",
+      message: "Product updated successfully",
       error: false,
       success: true,
+      product: updatedProduct,
     });
   } catch (error) {
     return response.status(500).json({
@@ -1344,9 +1462,13 @@ export async function filters(request, response) {
   }
 
   if (minPrice || maxPrice) {
-    filters.price = {
-      $gte: minPrice ? Number(minPrice) : 0,
-      $lte: maxPrice ? Number(maxPrice) : Infinity,
+    filters.variants = {
+      $elemMatch: {
+        discountedPrice: {
+          ...(minPrice ? { $gte: Number(minPrice) } : {}),
+          ...(maxPrice ? { $lte: Number(maxPrice) } : {}),
+        },
+      },
     };
   }
 
@@ -1390,10 +1512,18 @@ const sortItems = (products, sortBy, order) => {
         ? a.name.localeCompare(b.name)
         : b.name.localeCompare(a.name);
     }
+
     if (sortBy === "price") {
-      return order === "asc" ? a.price - b.price : b.price - a.price;
+      const getPrice = (product) =>
+        product.variants?.[0]?.discountedPrice ?? Infinity;
+
+      const priceA = getPrice(a);
+      const priceB = getPrice(b);
+
+      return order === "asc" ? priceA - priceB : priceB - priceA;
     }
-    return 0; // Default
+
+    return 0;
   });
 };
 

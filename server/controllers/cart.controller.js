@@ -12,12 +12,9 @@ export const addToCartItemController = async (request, response) => {
       quantity,
       subTotal,
       productId,
-      countInStock,
-      discount,
-      size,
-      weight,
-      ram,
       brand,
+      countInStock,
+      productVariantId,
     } = request.body;
 
     if (!productId) {
@@ -48,13 +45,10 @@ export const addToCartItemController = async (request, response) => {
       quantity: quantity,
       subTotal: subTotal,
       productId: productId,
-      countInStock: countInStock,
       userId: userId,
       brand: brand,
-      discount: discount,
-      size: size,
-      weight: weight,
-      ram: ram,
+      countInStock: countInStock,
+      productVariantId: productVariantId,
     });
 
     const save = await cartItem.save();
@@ -99,7 +93,7 @@ export const getCartItemController = async (request, response) => {
 export const updateCartItemQtyController = async (request, response) => {
   try {
     const userId = request.userId;
-    const { _id, qty, subTotal, size, weight, ram } = request.body;
+    const { _id, qty, subTotal } = request.body;
 
     if (!_id || !qty) {
       return response.status(400).json({
@@ -115,9 +109,6 @@ export const updateCartItemQtyController = async (request, response) => {
       {
         quantity: qty,
         subTotal: subTotal,
-        size: size,
-        ram: ram,
-        weight: weight,
       },
       { new: true }
     );

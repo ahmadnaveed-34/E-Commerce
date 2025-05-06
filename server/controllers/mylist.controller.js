@@ -3,16 +3,8 @@ import MyListModel from "../models/myList.modal.js";
 export const addToMyListController = async (request, response) => {
   try {
     const userId = request.userId; //middleware
-    const {
-      productId,
-      productTitle,
-      image,
-      rating,
-      price,
-      oldPrice,
-      brand,
-      discount,
-    } = request.body;
+    const { productId, productTitle, image, rating, price, oldPrice, brand } =
+      request.body;
 
     const item = await MyListModel.findOne({
       userId: userId,
@@ -33,7 +25,7 @@ export const addToMyListController = async (request, response) => {
       price,
       oldPrice,
       brand,
-      discount,
+
       userId,
     });
 

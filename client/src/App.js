@@ -26,6 +26,7 @@ import { OrderSuccess } from "./Pages/Orders/success";
 import { OrderFailed } from "./Pages/Orders/failed";
 import SearchPage from "./Pages/Search";
 import BlogDetails from "./Pages/BlogDetails";
+import ProtectRoute from "./ProtectRoute";
 
 const MyContext = createContext();
 
@@ -56,6 +57,13 @@ function App() {
   const [orderCreationAmount, setOrderCreationAmount] = useState();
   const [orderCreationAddress, setOrderCreationAddress] = useState();
 
+  const [showVariantModal, setShowVariantModal] = useState(false);
+  const [filteredVariants, setFilteredVariants] = useState([]);
+
+  const [changeProductPicIndex, setChangeProductPicIndex] = useState();
+  const [productVariantData, setProductVarinatData] = useState([]);
+  const [modelProductData, setModelProductData] = useState();
+
   const handleOpenProductDetailsModal = (status, item) => {
     setOpenProductDetailsModal({
       open: status,
@@ -75,7 +83,7 @@ function App() {
   };
 
   const toggleAddressPanel = (newOpen) => () => {
-    if (newOpen == false) {
+    if (newOpen === false) {
       setAddressMode("add");
     }
 
@@ -234,13 +242,25 @@ function App() {
     setOrderCreationAmount,
     orderCreationAddress,
     setOrderCreationAddress,
+    changeProductPicIndex,
+    setChangeProductPicIndex,
+    filteredVariants,
+    setFilteredVariants,
+    showVariantModal,
+    setShowVariantModal,
+    productVariantData,
+    setProductVarinatData,
+    modelProductData,
+    setModelProductData,
   };
 
   return (
     <>
       <BrowserRouter>
         <MyContext.Provider value={values}>
-          <Header />
+          {!["/login", "/register"].includes(window.location.pathname) && (
+            <Header />
+          )}
           <Routes>
             <Route path={"/"} exact={true} element={<Home />} />
             <Route
@@ -255,32 +275,101 @@ function App() {
             />
             <Route path={"/login"} exact={true} element={<Login />} />
             <Route path={"/register"} exact={true} element={<Register />} />
-            <Route path={"/cart"} exact={true} element={<CartPage />} />
+
+            <Route
+              path={"/cart"}
+              exact={true}
+              element={
+                <ProtectRoute>
+                  <CartPage />{" "}
+                </ProtectRoute>
+              }
+            />
+
             <Route path={"/verify"} exact={true} element={<Verify />} />
             <Route
               path={"/forgot-password"}
               exact={true}
               element={<ForgotPassword />}
             />
-            <Route path={"/checkout"} exact={true} element={<Checkout />} />
-            <Route path={"/my-account"} exact={true} element={<MyAccount />} />
-            <Route path={"/my-list"} exact={true} element={<MyList />} />
-            <Route path={"/my-orders"} exact={true} element={<Orders />} />
+
+            <Route
+              path={"/checkout"}
+              exact={true}
+              element={
+                <ProtectRoute>
+                  <Checkout />{" "}
+                </ProtectRoute>
+              }
+            />
+
+            <Route
+              path={"/my-account"}
+              exact={true}
+              element={
+                <ProtectRoute>
+                  <MyAccount />{" "}
+                </ProtectRoute>
+              }
+            />
+
+            <Route
+              path={"/my-list"}
+              exact={true}
+              element={
+                <ProtectRoute>
+                  <MyList />{" "}
+                </ProtectRoute>
+              }
+            />
+
+            <Route
+              path={"/my-orders"}
+              exact={true}
+              element={
+                <ProtectRoute>
+                  <Orders />{" "}
+                </ProtectRoute>
+              }
+            />
+
             <Route
               path={"/order/success"}
               exact={true}
-              element={<OrderSuccess />}
+              element={
+                <ProtectRoute>
+                  <OrderSuccess />{" "}
+                </ProtectRoute>
+              }
             />
+
             <Route
               path={"/order/failed"}
               exact={true}
-              element={<OrderFailed />}
+              element={
+                <ProtectRoute>
+                  <OrderFailed />{" "}
+                </ProtectRoute>
+              }
             />
-            <Route path={"/address"} exact={true} element={<Address />} />
+
+            <Route
+              path={"/address"}
+              exact={true}
+              element={
+                <ProtectRoute>
+                  <Address />{" "}
+                </ProtectRoute>
+              }
+            />
+
             <Route path={"/search"} exact={true} element={<SearchPage />} />
             <Route path={"/blog/:id"} exact={true} element={<BlogDetails />} />
           </Routes>
-          <Footer />
+
+          {!["/login", "/register"].includes(window.location.pathname) && (
+            <Footer />
+          )}
         </MyContext.Provider>
       </BrowserRouter>
 

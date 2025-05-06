@@ -122,6 +122,7 @@ const Profile = () => {
         if (res?.error !== true) {
           setIsLoading(false);
           context.alertBox("success", res?.data?.message);
+          context?.setFetchAgainData(Math.floor(Math.random() * 10000000000));
         } else {
           context.alertBox("error", res?.data?.message);
           setIsLoading(false);
@@ -240,7 +241,6 @@ const Profile = () => {
     <>
       <div className="card my-2 pt-3 w-[100%] sm:w-[100%] lg:w-[65%] shadow-md sm:rounded-lg bg-white px-5 pb-5">
         <div className="flex items-center justify-between">
-       
           <h2 className="text-[18px] font-[600]">User Profile</h2>
 
           <Button

@@ -63,7 +63,7 @@ export const BannerV1List = () => {
     <>
       <div className="flex items-center justify-between px-2 py-0 mt-1 md:mt-3">
         <h2 className="text-[18px] font-[600]">
-          Banners List
+          Secondary Banners List
           <span className="font-[400] text-[14px]"></span>
         </h2>
 
@@ -77,7 +77,7 @@ export const BannerV1List = () => {
               })
             }
           >
-            Add Banner
+            Add Secondary Banner
           </Button>
         </div>
       </div>
@@ -121,7 +121,7 @@ export const BannerV1List = () => {
                             onClick={() =>
                               context.setIsOpenFullScreenPanel({
                                 open: true,
-                                model: "Edit BannerV1",
+                                model: "Secondary Banner",
                                 id: item?._id,
                               })
                             }

@@ -148,43 +148,29 @@ export const Orders = () => {
         <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
             <tr>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" className="px-2 py-3">
                 &nbsp;
               </th>
-              <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                Order Id
-              </th>
-              <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                Paymant Id
-              </th>
-              <th scope="col" className="px-6 py-3 whitespace-nowrap">
+
+              <th scope="col" className="px-4 py-3 whitespace-nowrap">
                 Name
               </th>
-              <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                Phone Number
+
+              <th scope="col" className="px-2 py-3 whitespace-nowrap">
+                Address and Phone Number
               </th>
-              <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                Address
-              </th>
-              <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                Pincode
-              </th>
-              <th scope="col" className="px-6 py-3 whitespace-nowrap">
+
+              <th scope="col" className="px-1 py-3 whitespace-nowrap">
                 Total Amount
               </th>
-              <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                Email
-              </th>
-              <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                User Id
-              </th>
-              <th scope="col" className="px-6 py-3 whitespace-nowrap">
+
+              <th scope="col" className="px-3 py-3 whitespace-nowrap">
                 Order Status
               </th>
-              <th scope="col" className="px-6 py-3 whitespace-nowrap">
+              <th scope="col" className="px-1 py-3 whitespace-nowrap">
                 Date
               </th>
-              <th scope="col" className="px-6 py-3 whitespace-nowrap">
+              <th scope="col" className="px-1 py-3 whitespace-nowrap">
                 Action
               </th>
             </tr>
@@ -195,9 +181,9 @@ export const Orders = () => {
                 return (
                   <>
                     <tr className="bg-white border-b ">
-                      <td className="px-6 py-4 font-[500]">
+                      <td className="px-2 py-4 font-[500]">
                         <Button
-                          className="!w-[35px] !h-[35px] !min-w-[35px] !rounded-full !bg-[#f1f1f1]"
+                          className="!w-[25px] !h-[25px] !min-w-[25px] !rounded-full !bg-[#f1f1f1]"
                           onClick={() => isShowOrderdProduct(index)}
                         >
                           {isOpenOrderdProduct === index ? (
@@ -207,31 +193,20 @@ export const Orders = () => {
                           )}
                         </Button>
                       </td>
-                      <td className="px-6 py-4 font-[500]">
-                        <span className="text-primary">{order?._id}</span>
-                      </td>
 
-                      <td className="px-6 py-4 font-[500]">
-                        <span className="text-primary whitespace-nowrap text-[13px]">
-                          {order?.paymentId
-                            ? order?.paymentId
-                            : "CASH ON DELIVERY"}
-                        </span>
-                      </td>
-
-                      <td className="px-6 py-4 font-[500] whitespace-nowrap">
+                      <td className="px-4 py-4 font-[500] whitespace-nowrap">
                         {order?.userId?.name}
                       </td>
 
-                      <td className="px-6 py-4 font-[500]">
+                      {/* <td className="px-6 py-4 font-[500]">
                         {order?.delivery_address?.mobile}
-                      </td>
+                      </td> */}
 
-                      <td className="px-6 py-4 font-[500]">
+                      <td className="px-2 py-4 font-[500]">
                         <span className="inline-block text-[13px] font-[500] p-1 bg-[#f1f1f1] rounded-md">
                           {order?.delivery_address?.addressType}
                         </span>
-                        <span className="block w-[400px]">
+                        <span className="block w-[200px]">
                           {order?.delivery_address?.address_line1 +
                             " " +
                             order?.delivery_address?.city +
@@ -240,29 +215,18 @@ export const Orders = () => {
                             " " +
                             order?.delivery_address?.state +
                             " " +
-                            order?.delivery_address?.country}
+                            order?.delivery_address?.country +
+                            " " +
+                            "+" +
+                            order?.delivery_address?.mobile}
                         </span>
                       </td>
 
-                      <td className="px-6 py-4 font-[500]">
-                        {order?.delivery_address?.pincode}
-                      </td>
-
-                      <td className="px-6 py-4 font-[500]">
+                      <td className="px-1 py-3 font-[500]">
                         {order?.totalAmt}
                       </td>
 
-                      <td className="px-6 py-4 font-[500]">
-                        {order?.userId?.email?.substr(0, 5) + "***"}
-                      </td>
-
-                      <td className="px-6 py-4 font-[500]">
-                        <span className="text-primary">
-                          {order?.userId?._id}
-                        </span>
-                      </td>
-
-                      <td className="px-6 py-4 font-[500]">
+                      <td className="px-3 py-4 font-[500]">
                         <Select
                           labelId="demo-simple-select-helper-label"
                           id="demo-simple-select-helper"
@@ -282,10 +246,10 @@ export const Orders = () => {
                           <MenuItem value={"delivered"}>Delivered</MenuItem>
                         </Select>
                       </td>
-                      <td className="px-6 py-4 font-[500] whitespace-nowrap">
+                      <td className="px-1 py-4 font-[500] whitespace-nowrap">
                         {order?.createdAt?.split("T")[0]}
                       </td>
-                      <td className="px-6 py-4 font-[500] whitespace-nowrap">
+                      <td className="px-1 py-4 font-[500] whitespace-nowrap">
                         <Button
                           onClick={() => deleteOrder(order?._id)}
                           variant="outlined"
@@ -304,12 +268,6 @@ export const Orders = () => {
                             <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
                               <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
                                 <tr>
-                                  <th
-                                    scope="col"
-                                    className="px-6 py-3 whitespace-nowrap"
-                                  >
-                                    Product Id
-                                  </th>
                                   <th
                                     scope="col"
                                     className="px-6 py-3 whitespace-nowrap"
@@ -349,11 +307,6 @@ export const Orders = () => {
                                       key={index}
                                       className="bg-white border-b "
                                     >
-                                      <td className="px-6 py-4 font-[500]">
-                                        <span className="text-gray-600">
-                                          {item?._id}
-                                        </span>
-                                      </td>
                                       <td className="px-6 py-4 font-[500]">
                                         <div className="w-[200px]">
                                           {item?.productTitle}

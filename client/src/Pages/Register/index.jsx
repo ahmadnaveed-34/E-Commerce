@@ -122,7 +122,6 @@ const Register = () => {
           }
         });
 
-     
         // IdP data available using getAdditionalUserInfo(result)
         // ...
       })
@@ -139,7 +138,7 @@ const Register = () => {
   };
 
   return (
-    <section className="section py-5 sm:py-10">
+    <section className="section py-5">
       <div className="container">
         <div className="card shadow-md w-full sm:w-[400px] m-auto rounded-md bg-white p-5 px-10">
           <h3 className="text-center text-[18px] text-black">

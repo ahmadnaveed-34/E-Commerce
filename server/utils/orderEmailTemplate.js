@@ -67,18 +67,21 @@ const OrderConfirmationEmail = (username, orders) => {
              </tr>
     
             
-           ${orders?.products.map(
-             (product) => `
-             <tr>
-        <td>${product?.productTitle}</td>
-                <td>${product?.quantity}</td>
-                        <td>${product?.subTotal?.toLocaleString("en-US", {
-                          style: "currency",
-                          currency: "PKR",
-                        })}</td>
-        </tr>
-                    `
-           )}
+             ${orders?.products
+               .map(
+                 (product) => `
+                    <tr>
+                      <td>${product?.productTitle}</td>
+                      <td>${product?.quantity}</td>
+                      <td>${product?.subTotal?.toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "PKR",
+                      })}</td>
+                    </tr>
+                  `
+               )
+               .join("")}
+              
 
     
                     <tr>

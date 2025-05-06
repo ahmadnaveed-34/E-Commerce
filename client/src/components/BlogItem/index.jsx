@@ -32,7 +32,10 @@ const BlogItem = (props) => {
         <div
           className="mb-3 text-[14px] lg:text-[16px]"
           dangerouslySetInnerHTML={{
-            __html: props?.item?.description?.substr(0, 100) + "...",
+            __html:
+              props?.item?.description?.length > 100
+                ? props?.item?.description?.substr(0, 100) + "..."
+                : props?.item?.description,
           }}
         />
 

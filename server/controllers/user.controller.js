@@ -9,6 +9,8 @@ import genertedRefreshToken from "../utils/generatedRefreshToken.js";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 import ReviewModel from "../models/reviews.model.js.js";
+import userCreationEmail from "../utils/userCreationEmail.js";
+import { error } from "console";
 
 cloudinary.config({
   cloud_name: process.env.cloudinary_Config_Cloud_Name,
@@ -275,6 +277,74 @@ export async function loginUserController(request, response) {
       message: error.message || error,
       error: true,
       success: false,
+    });
+  }
+}
+
+export async function addUserController(request, response) {
+  try {
+    const { name, email, password, role } = request.body;
+
+    if (!name || !email || !password || !role) {
+      return response.status(400).json({
+        success: false,
+        message: "Please fill all required fields",
+        error: true,
+      });
+    }
+
+    const isExist = await UserModel.findOne({ email });
+    if (isExist) {
+      return response.status(409).json({
+        success: false,
+        message: "User already registered with this email",
+        error: true,
+      });
+    }
+
+    const salt = await bcryptjs.genSalt(10);
+    const hashPassword = await bcryptjs.hash(password, salt);
+
+    const newUser = new UserModel({
+      name,
+      email,
+      password: hashPassword,
+      role,
+      verify_email: true,
+    });
+
+    const createdUser = await newUser.save();
+
+    if (!createdUser) {
+      return response.status(400).json({
+        success: false,
+        message: "Failed to create user",
+        error: true,
+      });
+    }
+
+    try {
+      await sendEmailFun({
+        sendTo: email,
+        subject: "Account Created | Mega Mart",
+        text: "",
+        html: userCreationEmail(name, email, role, password),
+      });
+    } catch (emailError) {
+      console.error("Email sending failed:", emailError.message);
+    }
+
+    return response.status(201).json({
+      success: true,
+      message: "User created successfully",
+      error: false,
+    });
+  } catch (error) {
+    console.error(error);
+    return response.status(500).json({
+      success: false,
+      message: error.message || "Internal Server Error",
+      error: true,
     });
   }
 }

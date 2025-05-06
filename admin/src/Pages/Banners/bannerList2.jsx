@@ -83,7 +83,7 @@ export const BannerList2 = () => {
     <>
       <div className="flex items-center justify-between px-2 py-0 mt-1 md:mt-3">
         <h2 className="text-[18px] font-[600]">
-          Banners List
+          Main Banners List
           <span className="font-[400] text-[14px]"></span>
         </h2>
 
@@ -93,11 +93,11 @@ export const BannerList2 = () => {
             onClick={() =>
               context.setIsOpenFullScreenPanel({
                 open: true,
-                model: "Add Home Banner List2",
+                model: "Add Main Banner",
               })
             }
           >
-            Add Banner
+            Add Main Banner
           </Button>
         </div>
       </div>
@@ -122,16 +122,16 @@ export const BannerList2 = () => {
               {slidesData?.length !== 0 &&
                 slidesData?.map((item, index) => {
                   return (
-                    <TableRow>
+                    <TableRow key={index}>
                       <TableCell width={100}>
                         <div className="flex items-center gap-4 w-[130px] lg:w-[200px]">
                           <div
-                            class="img w-full rounded-md overflow-hidden group cursor-pointer"
+                            className="img w-full rounded-md overflow-hidden group cursor-pointer"
                             onClick={() => setOpen(true)}
                           >
                             <img
                               src={item?.images[0]}
-                              class="w-full group-hover:scale-105 transition-all"
+                              className="w-full group-hover:scale-105 transition-all"
                             />
                           </div>
                         </div>

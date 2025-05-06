@@ -10,6 +10,7 @@ import { FaCloudUploadAlt } from "react-icons/fa";
 import { Button } from "@mui/material";
 import { IoMdClose } from "react-icons/io";
 import { deleteImages, postData } from "../../utils/api";
+import { MdInfoOutline } from "react-icons/md";
 
 export const AddBannerV1 = () => {
   const [formFields, setFormFields] = useState({
@@ -93,7 +94,6 @@ export const AddBannerV1 = () => {
 
     setIsLoading(true);
 
-
     if (formFields.bannerTitle === "") {
       context.alertBox("error", "Please enter bannerTitle");
       setIsLoading(false);
@@ -125,9 +125,9 @@ export const AddBannerV1 = () => {
   };
 
   return (
-    <section className="p-5 bg-gray-50">
-      <form className="form py-1 p-1 md:p-8 md:py-1" onSubmit={handleSubmit}>
-        <div className="scroll max-h-[72vh] overflow-y-scroll pr-4 pt-4">
+    <section className="p-3 bg-gray-50">
+      <form className="form py-1 p-1 md:p-4 md:py-1" onSubmit={handleSubmit}>
+        <div className="scroll max-h-[70vh] overflow-y-scroll pr-4 pt-4">
           <div className="grid grid-cols-1 sm:grid-cols-5 md:grid-cols-5 lg:grid-cols-5 mb-3 gap-5">
             <div className="col">
               <h3 className="text-[14px] font-[500] mb-1 text-black">
@@ -218,7 +218,7 @@ export const AddBannerV1 = () => {
               )}
             </div>
 
-            <div className="col">
+            {/* <div className="col">
               <h3 className="text-[14px] font-[500] mb-1 text-black">
                 {" "}
                 Third Lavel Category
@@ -262,7 +262,7 @@ export const AddBannerV1 = () => {
                   })}
                 </Select>
               )}
-            </div>
+            </div> */}
 
             <div className="col">
               <h3 className="text-[14px] font-[500] mb-1 text-black"> Price</h3>
@@ -298,10 +298,12 @@ export const AddBannerV1 = () => {
             </div>
           </div>
 
-          <br />
-
-          <h3 className="text-[18px] font-[500] mb-0 text-black"> Image</h3>
-          <br />
+          <h3 className="text-[18px] font-[500] mb-2 text-black"> Image</h3>
+          <p className="flex items-center gap-2 text-sm text-blue-700 font-medium bg-blue-50 px-3 py-2 rounded-md border border-blue-200 mb-4">
+            <MdInfoOutline className="text-xl" />
+            Suggested resolution for Secondary Banner is{" "}
+            <strong>1080 × 660</strong>
+          </p>
           <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
             {previews?.length !== 0 &&
               previews?.map((image, index) => {
@@ -330,8 +332,7 @@ export const AddBannerV1 = () => {
           </div>
         </div>
 
-        <br />
-        <div className="w-[250px]">
+        <div className="w-[250px] mt-4">
           <Button type="submit" className="btn-blue btn-lg w-full flex gap-2">
             {isLoading === true ? (
               <CircularProgress color="inherit" />

@@ -8,6 +8,7 @@ import { useState } from "react";
 import { deleteImages, editData, fetchDataFromApi } from "../../utils/api";
 import { MyContext } from "../../App";
 import CircularProgress from "@mui/material/CircularProgress";
+import { MdInfoOutline } from "react-icons/md";
 
 const EditCategory = () => {
   const [formFields, setFormFields] = useState({
@@ -24,7 +25,6 @@ const EditCategory = () => {
     const id = context?.isOpenFullScreenPanel?.id;
 
     fetchDataFromApi(`/api/category/${id}`).then((res) => {
-   
       formFields.name = res?.category?.name;
       setPreviews(res?.category?.images);
     });
@@ -85,8 +85,6 @@ const EditCategory = () => {
       return false;
     }
 
-   
-
     editData(
       `/api/category/${context?.isOpenFullScreenPanel?.id}`,
       formFields
@@ -120,7 +118,11 @@ const EditCategory = () => {
             </div>
           </div>
 
-          <br />
+          <p className="flex items-center gap-2 text-sm text-blue-700 font-medium bg-blue-50 px-3 py-2 rounded-md border border-blue-200 mb-2">
+            <MdInfoOutline className="text-xl" />
+            Please use png image and suggested resolution for catergory image is{" "}
+            <strong>128 × 128 </strong>
+          </p>
 
           <h3 className="text-[14px] font-[500] mb-2 text-black">
             {" "}
@@ -157,7 +159,6 @@ const EditCategory = () => {
 
         <br />
 
-        <br />
         <div className="w-[250px]">
           <Button type="submit" className="btn-blue btn-lg w-full flex gap-2">
             {isLoading === true ? (

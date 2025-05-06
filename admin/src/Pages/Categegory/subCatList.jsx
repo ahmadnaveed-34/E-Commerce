@@ -73,7 +73,7 @@ export const SubCategoryList = () => {
                                   selectedCatName={subCat?.parentCatName}
                                 />
 
-                                {subCat?.children?.length !== 0 && (
+                                {/* {subCat?.children?.length !== 0 && (
                                   <ul className="pl-4">
                                     {subCat?.children?.map(
                                       (thirdLevel, index__) => {
@@ -97,7 +97,7 @@ export const SubCategoryList = () => {
                                       }
                                     )}
                                   </ul>
-                                )}
+                                )} */}
                               </li>
                             );
                           })}

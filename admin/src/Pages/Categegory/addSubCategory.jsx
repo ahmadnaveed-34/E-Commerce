@@ -109,8 +109,6 @@ const AddSubCategory = () => {
 
     setIsLoading2(true);
 
-   
-
     if (formFields2.name === "") {
       context.alertBox("error", "Please enter category name");
       setIsLoading2(false);
@@ -199,7 +197,7 @@ const AddSubCategory = () => {
         </div>
       </form>
 
-      <form className="form py-1 p-1 md:p-8 md:py-1" onSubmit={handleSubmit2}>
+      {/* <form className="form py-1 p-1 md:p-8 md:py-1" onSubmit={handleSubmit2}>
         <h4 className="font-[600]">Add Third Lavel Category</h4>
         <div className="scroll max-h-[72vh] overflow-y-scroll pr-4 pt-4">
           <div className="grid grid-cols-1 md:grid-cols-1 mb-3 gap-5">
@@ -265,7 +263,7 @@ const AddSubCategory = () => {
             )}
           </Button>
         </div>
-      </form>
+      </form> */}
     </section>
   );
 };

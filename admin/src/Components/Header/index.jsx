@@ -4,7 +4,7 @@ import Badge from "@mui/material/Badge";
 import { styled } from "@mui/material/styles";
 import IconButton from "@mui/material/IconButton";
 import { RiMenu2Line } from "react-icons/ri";
-import { FaRegBell } from "react-icons/fa";
+import { FaEyeSlash, FaRegBell, FaRegEye } from "react-icons/fa";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Divider from "@mui/material/Divider";
@@ -12,7 +12,7 @@ import { FaRegUser } from "react-icons/fa6";
 import { IoMdLogOut } from "react-icons/io";
 import { MyContext } from "../../App";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { fetchDataFromApi } from "../../utils/api";
+import { fetchDataFromApi, postData } from "../../utils/api";
 import AddProduct from "../../Pages/Products/addProduct";
 import AddHomeSlide from "../../Pages/HomeSliderBanners/addHomeSlide";
 import AddCategory from "../../Pages/Categegory/addCategory";
@@ -33,6 +33,8 @@ import { BannerList2_Edit_Banner } from "../../Pages/Banners/bannerList2_Edit_Ba
 import AddBlog from "../../Pages/Blog/addBlog";
 import EditBlog from "../../Pages/Blog/editBlog";
 import EditHomeSlide from "../../Pages/HomeSliderBanners/editHomeSlide";
+import { CircularProgress } from "@mui/material";
+import { TextField, Select, InputLabel, FormControl } from "@mui/material";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -50,6 +52,8 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 const Header = () => {
   const [anchorMyAcc, setAnchorMyAcc] = React.useState(null);
   const openMyAcc = Boolean(anchorMyAcc);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isPasswordShow, setisPasswordShow] = useState(false);
 
   const history = useNavigate();
 
@@ -77,7 +81,7 @@ const Header = () => {
     } else {
       history("/login");
     }
-  }, [context?.isLogin]);
+  }, [context?.isLogin, context?.fetchAgainData]);
 
   const logout = () => {
     setAnchorMyAcc(null);
@@ -91,6 +95,65 @@ const Header = () => {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         history("/login");
+      }
+    });
+  };
+
+  const [formFields, setFormFields] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "",
+  });
+
+  const onChangeInput = (e) => {
+    const { name, value } = e.target;
+    setFormFields((prevFormFields) => ({
+      ...prevFormFields,
+      [name]: value,
+    }));
+  };
+
+  const generatePassword = () => {
+    const newPassword = Math.random().toString(36).slice(-8); // Random 8-character password
+    setFormFields({ ...formFields, password: newPassword });
+  };
+
+  const valideValue = Object.values(formFields).every((el) => el);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    setIsLoading(true);
+
+    if (formFields.name === "") {
+      context.alertBox("error", "Please enter full name");
+      return setIsLoading(false);
+    }
+
+    if (formFields.email === "") {
+      context.alertBox("error", "Please enter email id");
+      return setIsLoading(false);
+    }
+
+    if (formFields.password === "") {
+      context.alertBox("error", "Please generate password");
+      return setIsLoading(false);
+    }
+
+    if (formFields.role === "") {
+      context.alertBox("error", "Please select user role");
+      return setIsLoading(false);
+    }
+
+    postData("/api/user/addUser", formFields).then((res) => {
+      if (res?.error !== true) {
+        setIsLoading(false);
+        context.alertBox("success", res?.message);
+        context?.setOpenAddUserModal(false);
+      } else {
+        context.alertBox("error", res?.message);
+        setIsLoading(false);
       }
     });
   };
@@ -309,11 +372,11 @@ const Header = () => {
           <AddBannerV1 />
         )}
 
-        {context?.isOpenFullScreenPanel?.model === "Edit BannerV1" && (
+        {context?.isOpenFullScreenPanel?.model === "Secondary Banner" && (
           <EditBannerV1 />
         )}
 
-        {context?.isOpenFullScreenPanel?.model === "Add Home Banner List2" && (
+        {context?.isOpenFullScreenPanel?.model === "Add Main Banner" && (
           <BannerList2_AddBanner />
         )}
 
@@ -324,6 +387,112 @@ const Header = () => {
         {context?.isOpenFullScreenPanel?.model === "Add Blog" && <AddBlog />}
 
         {context?.isOpenFullScreenPanel?.model === "Edit Blog" && <EditBlog />}
+      </Dialog>
+
+      <Dialog
+        open={context?.openAddUserModal}
+        onClose={context?.handleCloseAddUser}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <form
+          className="w-full max-w-lg mx-auto p-8 md:p-10 bg-white rounded-xl shadow-lg"
+          onSubmit={handleSubmit}
+        >
+          <div className="text-center mb-4">
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              Create New Account
+            </h2>
+          </div>
+
+          <div className="mb-3">
+            <TextField
+              fullWidth
+              id="name"
+              name="name"
+              label="Full Name"
+              variant="outlined"
+              value={formFields.name}
+              disabled={isLoading}
+              onChange={onChangeInput}
+              size="small"
+              required
+            />
+          </div>
+
+          {/* Email */}
+          <div className="mb-3">
+            <TextField
+              fullWidth
+              id="email"
+              name="email"
+              label="Email Address"
+              type="email"
+              variant="outlined"
+              value={formFields.email}
+              disabled={isLoading}
+              onChange={onChangeInput}
+              size="small"
+              required
+            />
+          </div>
+
+          {/* Role Selection */}
+          <div className="mb-3">
+            <FormControl fullWidth size="small">
+              <InputLabel id="role-label">Role</InputLabel>
+              <Select
+                labelId="role-label"
+                id="role"
+                name="role"
+                value={formFields.role}
+                label="Role"
+                onChange={onChangeInput}
+                disabled={isLoading}
+                required
+              >
+                <MenuItem value="USER">User</MenuItem>
+                <MenuItem value="ADMIN">Admin</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
+
+          {/* Password with Generate Button */}
+          <div className="mb-4">
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Password
+            </label>
+            <div className="flex items-center gap-2">
+              <TextField
+                fullWidth
+                name="password"
+                value={formFields.password}
+                size="small"
+                variant="outlined"
+                InputProps={{
+                  readOnly: true,
+                }}
+                disabled={isLoading}
+              />
+              <Button
+                type="button"
+                className="h-11 !px-4 bg-primary hover:bg-primary-dark text-white rounded-md"
+                onClick={generatePassword}
+              >
+                Generate
+              </Button>
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <Button type="submit" className="btn-blue btn-lg w-full mt-2">
+            {isLoading ? (
+              <CircularProgress color="inherit" size={24} />
+            ) : (
+              "Create Account"
+            )}
+          </Button>
+        </form>
       </Dialog>
     </>
   );

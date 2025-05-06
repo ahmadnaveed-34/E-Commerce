@@ -263,7 +263,9 @@ const Checkout = () => {
                               className="text-[14px]"
                               title={item?.productTitle}
                             >
-                              {item?.productTitle?.substr(0, 20) + "..."}{" "}
+                              {item?.productTitle?.length > 20
+                                ? item?.productTitle?.substr(0, 19) + "..."
+                                : item?.productTitle}
                             </h4>
                             <span className="text-[13px]">
                               Qty : {item?.quantity}

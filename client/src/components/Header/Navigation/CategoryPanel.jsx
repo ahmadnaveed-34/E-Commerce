@@ -17,6 +17,9 @@ const CategoryPanel = (props) => {
     props.propsSetIsOpenCatPanel(newOpen);
   };
 
+
+
+
   const DrawerList = (
     <Box sx={{ width: 250 }} role="presentation" className="categoryPanel">
       <div className="p-3">
@@ -35,7 +38,7 @@ const CategoryPanel = (props) => {
         />
       </h3>
 
-      {props?.data?.length !== 0 && <CategoryCollapse data={props?.data} />}
+      {props?.data?.length !== 0 && <CategoryCollapse toggleDrawer={toggleDrawer} data={props?.data} />}
 
       {context?.windowWidth < 992 && context?.isLogin === false && (
         <Link

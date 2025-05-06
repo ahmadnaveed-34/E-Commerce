@@ -41,7 +41,19 @@ function App() {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [sidebarWidth, setSidebarWidth] = useState(18);
 
+  const [fetchAgainData, setFetchAgainData] = useState();
+
   const [progress, setProgress] = useState(0);
+
+  const [openAddUserModal, setOpenAddUserModal] = useState(false);
+
+  const handleClickAddUser = () => {
+    setOpenAddUserModal(true);
+  };
+
+  const handleCloseAddUser = () => {
+    setOpenAddUserModal(false);
+  };
 
   const [isOpenFullScreenPanel, setIsOpenFullScreenPanel] = useState({
     open: false,
@@ -660,7 +672,7 @@ function App() {
     } else {
       setIsLogin(false);
     }
-  }, [isLogin]);
+  }, [isLogin, fetchAgainData]);
 
   useEffect(() => {
     getCat();
@@ -702,6 +714,12 @@ function App() {
     sidebarWidth,
     setProgress,
     progress,
+    openAddUserModal,
+    setOpenAddUserModal,
+    handleClickAddUser,
+    handleCloseAddUser,
+    fetchAgainData,
+    setFetchAgainData,
   };
 
   return (

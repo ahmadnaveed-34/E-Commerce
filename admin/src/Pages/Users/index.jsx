@@ -50,7 +50,7 @@ const columns = [
 
 export const Users = () => {
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(25);
+  const [rowsPerPage, setRowsPerPage] = React.useState(50);
   const [userData, setUserData] = useState([]);
   const [userTotalData, setUserTotalData] = useState([]);
   const [isLoading, setIsloading] = useState(false);
@@ -197,6 +197,14 @@ export const Users = () => {
 
   return (
     <>
+      <div className="flex justify-end pr-2">
+        <Button
+          className="!bg-primary !text-white !px-6 !text-[12px]"
+          onClick={() => context.handleClickAddUser()}
+        >
+          Create User
+        </Button>
+      </div>
       <div className="card my-2 pt-5 shadow-md sm:rounded-lg bg-white">
         <div className="flex items-center w-full px-5 pb-4 justify-beetween">
           <div className="col w-[40%]">
@@ -270,7 +278,7 @@ export const Users = () => {
                       </TableCell>
                       <TableCell style={{ minWidth: columns.minWidth }}>
                         <div className="flex items-center gap-4 w-[300px]">
-                          <div class="img w-[45px] h-[45px] rounded-md overflow-hidden group">
+                          <div className="img w-[45px] h-[45px] rounded-md overflow-hidden group">
                             <img
                               src={
                                 user?.avatar !== "" &&
@@ -278,7 +286,8 @@ export const Users = () => {
                                   ? user?.avatar
                                   : "/user.jpg"
                               }
-                              class="w-full group-hover:scale-105 transition-all"
+                              alt="img"
+                              className="w-full group-hover:scale-105 transition-all"
                             />
                           </div>
 
@@ -310,7 +319,7 @@ export const Users = () => {
                           <span
                             className={`inline-block py-1 px-4 rounded-full text-[11px] capitalize bg-red-500  text-white font-[500]`}
                           >
-                            Not Verify
+                            Unverified
                           </span>
                         ) : (
                           <span

@@ -83,7 +83,7 @@ const CartPage = () => {
               <>
                 <>
                   <div className="flex items-center justify-center flex-col py-10 gap-5">
-                    <img src="/empty-cart.png" className="w-[150px]" />
+                    <img src="/empty-cart.png" alt="img" className="w-[150px]" />
                     <h4>Your Cart is currently empty</h4>
                     <Link to="/">
                       <Button className="btn-org">Continue Shopping</Button>

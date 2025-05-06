@@ -27,8 +27,10 @@ const ProductItem = (props) => {
   const [isShowTabs, setIsShowTabs] = useState(false);
   const [selectedTabName, setSelectedTabName] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [cartItemPrice, setCartItemPrice] = useState();
   const context = useContext(MyContext);
+  const [cartItemId, setCartItemId] = useState();
+  const [productMaxQty, setProductMaxQuantity] = useState();
 
   const addToCart = (product, userId, quantity) => {
     if (context?.userData === null) {
@@ -87,28 +89,34 @@ const ProductItem = (props) => {
   };
 
   useEffect(() => {
-    const item = context?.cartData?.filter((cartItem) =>
-      cartItem.productId.includes(props?.item?._id)
+    const cartItem = context?.cartData?.find(
+      (cart) => cart.productId === props?.item?._id
     );
 
-    const myListItem = context?.myListData?.filter((item) =>
-      item.productId.includes(props?.item?._id)
+    const myListItem = context?.myListData?.find(
+      (item) => item.productId === props?.item?._id
     );
 
-    if (item?.length !== 0) {
-      setCartItem(item);
+    const matchedItem = context?.cartData?.find(
+      (c) => c.productId === props?.item?._id
+    );
+    if (matchedItem) {
+      setProductMaxQuantity(matchedItem.countInStock);
+      setCartItemPrice(matchedItem?.price);
+      setCartItemId(matchedItem?._id);
+    }
+
+    if (cartItem) {
+      setCartItem(cartItem);
       setIsAdded(true);
-      setQuantity(item[0]?.quantity);
+      setQuantity(cartItem?.quantity || 1);
     } else {
+      setIsAdded(false);
       setQuantity(1);
     }
 
-    if (myListItem?.length !== 0) {
-      setIsAddedInMyList(true);
-    } else {
-      setIsAddedInMyList(false);
-    }
-  }, [context?.cartData]);
+    setIsAddedInMyList(!!myListItem);
+  }, [context?.cartData, context?.myListData]);
 
   const minusQty = () => {
     if (quantity !== 1 && quantity > 1) {
@@ -118,18 +126,16 @@ const ProductItem = (props) => {
     }
 
     if (quantity === 1) {
-      deleteData(`/api/cart/delete-cart-item/${cartItem[0]?._id}`).then(
-        (res) => {
-          setIsAdded(false);
-          context.alertBox("success", "Item Removed ");
-          context?.getCartItems();
-          setIsShowTabs(false);
-          setActiveTab(null);
-        }
-      );
+      deleteData(`/api/cart/delete-cart-item/${cartItem?._id}`).then((res) => {
+        setIsAdded(false);
+        context.alertBox("success", "Item Removed ");
+        context?.getCartItems();
+        setIsShowTabs(false);
+        setActiveTab(null);
+      });
     } else {
       const obj = {
-        _id: cartItem[0]?._id,
+        _id: cartItem?._id,
         qty: quantity - 1,
         subTotal: props?.item?.price * (quantity - 1),
       };
@@ -142,18 +148,26 @@ const ProductItem = (props) => {
   };
 
   const addQty = () => {
-    setQuantity(quantity + 1);
+    if (quantity < productMaxQty) {
+      const newQty = quantity + 1;
+      setQuantity(newQty);
+      console.log(newQty);
 
-    const obj = {
-      _id: cartItem[0]?._id,
-      qty: quantity + 1,
-      subTotal: props?.item?.price * (quantity + 1),
-    };
+      const cartObj = {
+        _id: cartItemId,
+        qty: newQty,
+        subTotal: cartItemPrice * newQty,
+      };
 
-    editData(`/api/cart/update-qty`, obj).then((res) => {
-      context.alertBox("success", res?.data?.message);
-      context?.getCartItems();
-    });
+      editData("/api/cart/update-qty", cartObj).then((res) => {
+        if (res?.data?.error === false) {
+          context.alertBox("success", res?.data?.message);
+          context?.getCartItems();
+        }
+      });
+    } else {
+      context.alertBox("error", "Selected quantity exceeds available stock.");
+    }
   };
 
   const handleAddToMyList = (item) => {
@@ -183,6 +197,12 @@ const ProductItem = (props) => {
         }
       });
     }
+  };
+
+  const handleShowVariantBox = () => {
+    context?.setShowVariantModal(true);
+    context?.setProductVarinatData(props?.item?.variants);
+    context?.setModelProductData(props?.item);
   };
 
   return (
@@ -325,10 +345,10 @@ const ProductItem = (props) => {
 
         <div className="flex items-center gap-4">
           <span className="oldPrice line-through text-gray-500 text-[15px] font-[500]">
-            Rs.{props?.item?.oldPrice}
+            Rs. {props?.item?.variants[0]?.regularPrice}
           </span>
           <span className="price text-primary text-[15px]  font-[600]">
-            Rs.{props?.item?.price}
+            Rs. {props?.item?.variants[0]?.discountedPrice}
           </span>
         </div>
 
@@ -337,9 +357,7 @@ const ProductItem = (props) => {
             <Button
               className="btn-org btn-border flex w-full btn-sm gap-2 "
               size="small"
-              onClick={() =>
-                addToCart(props?.item, context?.userData?._id, quantity)
-              }
+              onClick={handleShowVariantBox}
             >
               <MdOutlineShoppingCart className="text-[18px]" /> Add to Cart
             </Button>

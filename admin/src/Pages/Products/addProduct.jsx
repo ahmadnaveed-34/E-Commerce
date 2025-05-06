@@ -3,7 +3,6 @@ import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import Rating from "@mui/material/Rating";
 import UploadBox from "../../Components/UploadBox";
-import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
 import { IoMdClose } from "react-icons/io";
 import { Button } from "@mui/material";
@@ -13,28 +12,26 @@ import { deleteImages, fetchDataFromApi, postData } from "../../utils/api";
 import { useNavigate } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import Switch from "@mui/material/Switch";
+import { MdInfoOutline } from "react-icons/md";
+import axios from "axios";
 
 const label = { inputProps: { "aria-label": "Switch demo" } };
 
 const AddProduct = () => {
+  const [variants, setVariants] = useState([]);
+
   const [formFields, setFormFields] = useState({
     name: "",
     description: "",
     images: [],
     brand: "",
-    price: "",
-    oldPrice: "",
     category: "",
     catName: "",
     catId: "",
     subCatId: "",
     subCat: "",
-    thirdsubCat: "",
-    thirdsubCatId: "",
-    countInStock: "",
     rating: "",
     isFeatured: false,
-    discount: "",
     productRam: [],
     size: [],
     productWeight: [],
@@ -58,8 +55,10 @@ const AddProduct = () => {
 
   const [previews, setPreviews] = useState([]);
   const [bannerPreviews, setBannerPreviews] = useState([]);
+  const [variantImagePreviews, setVariantImagesPreviews] = useState([]);
 
   const [checkedSwitch, setCheckedSwitch] = useState(false);
+  const [showVariants, setShowVariants] = useState(false);
 
   const history = useNavigate();
 
@@ -184,6 +183,16 @@ const AddProduct = () => {
     }, 10);
   };
 
+  const setVariantPreviewsFun = (previewsArr, index) => {
+    const imageUrl = previewsArr[0]; // assuming one image per variant
+
+    setVariants((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], image: imageUrl };
+      return updated;
+    });
+  };
+
   const setBannerImagesFun = (previewsArr) => {
     const imgArr = bannerPreviews;
     for (let i = 0; i < previewsArr.length; i++) {
@@ -225,6 +234,18 @@ const AddProduct = () => {
     });
   };
 
+  const removeVariantImage = (index) => {
+    const img = variants[index].image;
+
+    if (!img) return;
+
+    deleteImages(`/api/category/deteleImage?img=${img}`).then((res) => {
+      const updatedVariants = [...variants];
+      updatedVariants[index].image = "";
+      setVariants(updatedVariants);
+    });
+  };
+
   const handleChangeSwitch = (event) => {
     setCheckedSwitch(event.target.checked);
     formFields.isDisplayOnHomeBanner = event.target.checked;
@@ -248,33 +269,18 @@ const AddProduct = () => {
       return false;
     }
 
-    if (formFields?.price === "") {
-      context.alertBox("error", "Please enter product price");
-      return false;
-    }
-
-    if (formFields?.oldPrice === "") {
-      context.alertBox("error", "Please enter product old Price");
-      return false;
-    }
-
-    if (formFields?.countInStock === "") {
-      context.alertBox("error", "Please enter  product stock");
-      return false;
-    }
-
     if (formFields?.brand === "") {
       context.alertBox("error", "Please enter product brand");
       return false;
     }
 
-    if (formFields?.discount === "") {
-      context.alertBox("error", "Please enter product discount");
+    if (formFields?.rating === "") {
+      context.alertBox("error", "Please enter  product rating");
       return false;
     }
 
-    if (formFields?.rating === "") {
-      context.alertBox("error", "Please enter  product rating");
+    if (variants?.length < 1) {
+      context.alertBox("error", "Please sdd add at least one product variant.");
       return false;
     }
 
@@ -285,364 +291,263 @@ const AddProduct = () => {
 
     setIsLoading(true);
 
-    postData("/api/product/create", formFields).then((res) => {
-      if (res?.error === false) {
-        context.alertBox("success", res?.message);
-        setTimeout(() => {
+    const cleanedVariants = variants.filter(
+      (v) => v.stock && v.image && v.regularPrice && v.discountedPrice
+    );
+
+    const finalPayload = {
+      ...formFields,
+      variants: cleanedVariants,
+    };
+
+    const params = {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        "Content-Type": "application/json",
+      },
+    };
+
+    axios
+      .post("http://localhost:8000/api/product/create", finalPayload, params)
+      .then((res) => {
+        if (res?.data?.error === false) {
+          context.alertBox("success", res.data.message);
+          setTimeout(() => {
+            setIsLoading(false);
+            context.setIsOpenFullScreenPanel({ open: false });
+            history("/products");
+          }, 1000);
+        } else {
           setIsLoading(false);
-          context.setIsOpenFullScreenPanel({
-            open: false,
-          });
-          history("/products");
-        }, 1000);
-      } else {
+          context.alertBox(
+            "error",
+            res?.data?.message || "Something went wrong"
+          );
+        }
+      })
+      .catch((err) => {
         setIsLoading(false);
-        context.alertBox("error", res?.message);
-      }
+        context.alertBox(
+          "error",
+          err?.response?.data?.message || "Server error"
+        );
+      });
+  };
+
+  const handleChange = (e, index) => {
+    const { name, value } = e.target;
+    setVariants((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [name]: value };
+      return updated;
     });
   };
 
+  const addVariant = () => {
+    const lastVariant = variants[variants.length - 1];
+
+    // Prevent adding another if last one is incomplete
+    if (
+      lastVariant &&
+      (!lastVariant.stock ||
+        !lastVariant.image ||
+        !lastVariant.regularPrice ||
+        !lastVariant.discountedPrice)
+    ) {
+      return context.alertBox(
+        "error",
+        "Please complete all required fields: Stock, Regular Price, Discounted Price, and Image."
+      );
+    }
+
+    setVariants([
+      ...variants,
+      {
+        size: "",
+        color: "",
+        ram: "",
+        storage: "",
+        material: "",
+        weight: "",
+        flavour: "",
+        dimensions: "",
+        voltage: "",
+        regularPrice: "",
+        discountedPrice: "",
+        stock: "",
+        image: "",
+      },
+    ]);
+  };
+
+  const removeVariant = (index) => {
+    const updated = variants.filter((_, i) => i !== index);
+    setVariants(updated);
+  };
+
+  const toggleVariantForm = () => {
+    if (!showVariants && variants.length === 0) {
+      addVariant();
+    }
+    setShowVariants(!showVariants);
+  };
+
   return (
-    <section className="p-5 bg-gray-50">
-      <form className="form py-1 p-1 md:p-8 md:py-1" onSubmit={handleSubmitg}>
-        <div className="scroll max-h-[72vh] overflow-y-scroll pr-4">
-          <div className="grid grid-cols-1 mb-3">
-            <div className="col">
-              <h3 className="text-[14px] font-[500] mb-1 text-black">
+    <section className="p-3 md:p-4 bg-gradient-to-b from-white to-gray-50 shadow rounded-lg">
+      <form className="space-y-5" onSubmit={handleSubmitg}>
+        <div className="max-h-[70vh] overflow-y-auto pr-1 space-y-3">
+          {/* Product Info */}
+          <div className="bg-white p-3 md:p-4 rounded-lg shadow-sm space-y-2">
+            <h2 className="text-sm font-semibold text-gray-700 border-b pb-1">
+              Product Information
+            </h2>
+
+            <div>
+              <label className="text-xs text-gray-600 mb-1 block">
                 Product Name
-              </h3>
+              </label>
               <input
                 type="text"
-                className="w-full h-[40px] border border-[rgba(0,0,0,0.2)] focus:outline-none focus:border-[rgba(0,0,0,0.4)] rounded-sm p-3 text-sm"
                 name="name"
                 value={formFields.name}
                 onChange={onChangeInput}
+                placeholder="Enter product name"
+                className="w-full h-[34px] border border-gray-300 rounded-md px-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 mb-3">
-            <div className="col">
-              <h3 className="text-[14px] font-[500] mb-1 text-black">
+            <div>
+              <label className="text-xs text-gray-600 mb-1 block">
                 Product Description
-              </h3>
+              </label>
               <textarea
-                type="text"
-                className="w-full h-[140px] border border-[rgba(0,0,0,0.2)] focus:outline-none focus:border-[rgba(0,0,0,0.4)] rounded-sm p-3 text-sm"
                 name="description"
                 value={formFields.description}
                 onChange={onChangeInput}
+                placeholder="Write product details..."
+                className="w-full h-[80px] border border-gray-300 rounded-md px-2 py-1 text-xs resize-none focus:ring-1 focus:ring-blue-500 outline-none"
               />
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mb-3 gap-4">
-            <div className="col">
-              <h3 className="text-[14px] font-[500] mb-1 text-black">
-                Product Category
-              </h3>
-
-              {context?.catData?.length !== 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+              <div>
+                <label className="text-xs text-gray-600 mb-1 block">
+                  Category
+                </label>
                 <Select
-                  labelId="demo-simple-select-label"
-                  id="productCatDrop"
                   size="small"
                   className="w-full"
                   value={productCat}
-                  label="Category"
                   onChange={handleChangeProductCat}
                 >
-                  {context?.catData?.map((cat, index) => {
-                    return (
-                      <MenuItem
-                        key={index}
-                        value={cat?._id}
-                        onClick={() => selectCatByName(cat?.name)}
-                      >
-                        {cat?.name}
-                      </MenuItem>
-                    );
-                  })}
+                  {context?.catData?.map((cat, i) => (
+                    <MenuItem
+                      key={i}
+                      value={cat._id}
+                      onClick={() => selectCatByName(cat.name)}
+                    >
+                      {cat.name}
+                    </MenuItem>
+                  ))}
                 </Select>
-              )}
-            </div>
+              </div>
 
-            <div className="col">
-              <h3 className="text-[14px] font-[500] mb-1 text-black">
-                Product Sub Category
-              </h3>
-
-              {context?.catData?.length !== 0 && (
+              <div>
+                <label className="text-xs text-gray-600 mb-1 block">
+                  Sub Category
+                </label>
                 <Select
-                  labelId="demo-simple-select-label"
-                  id="productCatDrop"
                   size="small"
                   className="w-full"
                   value={productSubCat}
-                  label="Sub Category"
                   onChange={handleChangeProductSubCat}
                 >
-                  {context?.catData?.map((cat, index) => {
-                    return (
-                      cat?.children?.length !== 0 &&
-                      cat?.children?.map((subCat, index_) => {
-                        return (
-                          <MenuItem
-                            key={index_}
-                            value={subCat?._id}
-                            onClick={() => selectSubCatByName(subCat?.name)}
-                          >
-                            {subCat?.name}
-                          </MenuItem>
-                        );
-                      })
-                    );
-                  })}
-                </Select>
-              )}
-            </div>
-
-            <div className="col">
-              <h3 className="text-[14px] font-[500] mb-1 text-black">
-                Product Third Lavel Category
-              </h3>
-
-              {context?.catData?.length !== 0 && (
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="productCatDrop"
-                  size="small"
-                  className="w-full"
-                  value={productThirdLavelCat}
-                  label="Sub Category"
-                  onChange={handleChangeProductThirdLavelCat}
-                >
-                  {context?.catData?.map((cat) => {
-                    return (
-                      cat?.children?.length !== 0 &&
-                      cat?.children?.map((subCat) => {
-                        return (
-                          subCat?.children?.length !== 0 &&
-                          subCat?.children?.map((thirdLavelCat, index) => {
-                            return (
-                              <MenuItem
-                                value={thirdLavelCat?._id}
-                                key={index}
-                                onClick={() =>
-                                  selectSubCatByThirdLavel(thirdLavelCat?.name)
-                                }
-                              >
-                                {thirdLavelCat?.name}
-                              </MenuItem>
-                            );
-                          })
-                        );
-                      })
-                    );
-                  })}
-                </Select>
-              )}
-            </div>
-
-            <div className="col">
-              <h3 className="text-[14px] font-[500] mb-1 text-black">
-                Product Price
-              </h3>
-              <input
-                type="number"
-                className="w-full h-[40px] border border-[rgba(0,0,0,0.2)] focus:outline-none focus:border-[rgba(0,0,0,0.4)] rounded-sm p-3 text-sm "
-                name="price"
-                value={formFields.price}
-                onChange={onChangeInput}
-              />
-            </div>
-
-            <div className="col">
-              <h3 className="text-[14px] font-[500] mb-1  text-black">
-                Product Old Price
-              </h3>
-              <input
-                type="number"
-                className="w-full h-[40px] border border-[rgba(0,0,0,0.2)] focus:outline-none focus:border-[rgba(0,0,0,0.4)] rounded-sm p-3 text-sm "
-                name="oldPrice"
-                value={formFields.oldPrice}
-                onChange={onChangeInput}
-              />
-            </div>
-
-            <div className="col">
-              <h3 className="text-[14px] font-[500] mb-1 text-black">
-                Is Featured?
-              </h3>
-              <Select
-                labelId="demo-simple-select-label"
-                id="productCatDrop"
-                size="small"
-                className="w-full"
-                value={productFeatured}
-                label="Category"
-                onChange={handleChangeProductFeatured}
-              >
-                <MenuItem value={true}>True</MenuItem>
-                <MenuItem value={false}>False</MenuItem>
-              </Select>
-            </div>
-
-            <div className="col">
-              <h3 className="text-[14px] font-[500] mb-1 text-black">
-                Product Stock
-              </h3>
-              <input
-                type="number"
-                className="w-full h-[40px] border border-[rgba(0,0,0,0.2)] focus:outline-none focus:border-[rgba(0,0,0,0.4)] rounded-sm p-3 text-sm "
-                name="countInStock"
-                value={formFields.countInStock}
-                onChange={onChangeInput}
-              />
-            </div>
-
-            <div className="col">
-              <h3 className="text-[14px] font-[500] mb-1 text-black">
-                Product Brand
-              </h3>
-              <input
-                type="text"
-                className="w-full h-[40px] border border-[rgba(0,0,0,0.2)] focus:outline-none focus:border-[rgba(0,0,0,0.4)] rounded-sm p-3 text-sm "
-                name="brand"
-                value={formFields.brand}
-                onChange={onChangeInput}
-              />
-            </div>
-
-            <div className="col">
-              <h3 className="text-[14px] font-[500] mb-1 text-black">
-                Product Discount
-              </h3>
-              <input
-                type="number"
-                className="w-full h-[40px] border border-[rgba(0,0,0,0.2)] focus:outline-none focus:border-[rgba(0,0,0,0.4)] rounded-sm p-3 text-sm "
-                name="discount"
-                value={formFields.discount}
-                onChange={onChangeInput}
-              />
-            </div>
-
-            <div className="col">
-              <h3 className="text-[14px] font-[500] mb-1 text-black">
-                Product RAMS
-              </h3>
-              {productRamsData?.length !== 0 && (
-                <Select
-                  multiple
-                  labelId="demo-simple-select-label"
-                  id="productCatDrop"
-                  size="small"
-                  className="w-full"
-                  value={productRams}
-                  label="Category"
-                  onChange={handleChangeProductRams}
-                >
-                  {productRamsData?.map((item, index) => {
-                    return (
-                      <MenuItem key={index} value={item?.name}>
-                        {item.name}
+                  {context?.catData?.flatMap((cat) =>
+                    cat.children?.map((sub, idx) => (
+                      <MenuItem
+                        key={idx}
+                        value={sub._id}
+                        onClick={() => selectSubCatByName(sub.name)}
+                      >
+                        {sub.name}
                       </MenuItem>
-                    );
-                  })}
+                    ))
+                  )}
                 </Select>
-              )}
-            </div>
+              </div>
 
-            <div className="col">
-              <h3 className="text-[14px] font-[500] mb-1 text-black">
-                Product Weight
-              </h3>
-              {productWeightData?.length !== 0 && (
+              <div>
+                <label className="text-xs text-gray-600 mb-1 block">
+                  Is Featured?
+                </label>
                 <Select
-                  multiple
-                  labelId="demo-simple-select-label"
-                  id="productCatDrop"
                   size="small"
                   className="w-full"
-                  value={productWeight}
-                  label="Category"
-                  onChange={handleChangeProductWeight}
+                  value={productFeatured}
+                  onChange={handleChangeProductFeatured}
                 >
-                  {productWeightData?.map((item, index) => {
-                    return (
-                      <MenuItem key={index} value={item?.name}>
-                        {item?.name}
-                      </MenuItem>
-                    );
-                  })}
+                  <MenuItem value={true}>True</MenuItem>
+                  <MenuItem value={false}>False</MenuItem>
                 </Select>
-              )}
+              </div>
+
+              <div>
+                <label className="text-xs text-gray-600 mb-1 block">
+                  Brand
+                </label>
+                <input
+                  type="text"
+                  name="brand"
+                  value={formFields.brand}
+                  onChange={onChangeInput}
+                  placeholder="e.g. Nike"
+                  className="w-full h-[34px] border border-gray-300 rounded-md px-2 text-xs focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
             </div>
 
-            <div className="col">
-              <h3 className="text-[14px] font-[500] mb-1 text-black">
-                Product Size
-              </h3>
-              {productSizeData?.length !== 0 && (
-                <Select
-                  multiple
-                  labelId="demo-simple-select-label"
-                  id="productCatDrop"
-                  size="small"
-                  className="w-full"
-                  value={productSize}
-                  label="Category"
-                  onChange={handleChangeProductSize}
-                >
-                  {productSizeData?.map((item, index) => {
-                    return (
-                      <MenuItem key={index} value={item?.name}>
-                        {item?.name}
-                      </MenuItem>
-                    );
-                  })}
-                </Select>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-4 mb-3 gap-4">
-            <div className="col">
-              <h3 className="text-[14px] font-[500] mb-1  text-black">
-                Product Rating{" "}
-              </h3>
+            <div>
+              <label className="text-xs text-gray-600 mb-1 block">Rating</label>
               <Rating
                 name="half-rating"
                 defaultValue={1}
                 onChange={onChangeRating}
+                size="small"
               />
             </div>
           </div>
 
-          <div className="col w-full p-5 px-0">
-            <h3 className="font-[700] text-[18px] mb-3">Media & Images</h3>
+          {/* Product Images */}
+          <div className="bg-white p-3 md:p-4 rounded-lg shadow-sm space-y-2">
+            <h2 className="text-sm font-semibold text-gray-700">
+              Product Images
+            </h2>
+            <p className="text-xs text-blue-700 flex items-center gap-1 bg-blue-50 px-2 py-1 border border-blue-200 rounded">
+              <MdInfoOutline className="text-base" />
+              Use <strong>1512×1920</strong> or <strong>540×720</strong> or{" "}
+              <strong>1130×1500</strong>
+            </p>
 
-            <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
-              {previews?.length !== 0 &&
-                previews?.map((image, index) => {
-                  return (
-                    <div className="uploadBoxWrapper relative" key={index}>
-                      <span
-                        className="absolute w-[20px] h-[20px] rounded-full  overflow-hidden bg-red-700 -top-[5px] -right-[5px] flex items-center justify-center z-50 cursor-pointer"
-                        onClick={() => removeImg(image, index)}
-                      >
-                        <IoMdClose className="text-white text-[17px]" />
-                      </span>
-
-                      <div className="uploadBox p-0 rounded-md overflow-hidden border border-dashed border-[rgba(0,0,0,0.3)] h-[150px] w-[100%] bg-gray-100 cursor-pointer hover:bg-gray-200 flex items-center justify-center flex-col relative">
-                        <img src={image} className="w-100" />
-                      </div>
-                    </div>
-                  );
-                })}
-
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2">
+              {previews.map((img, i) => (
+                <div key={i} className="relative">
+                  <span
+                    onClick={() => removeImg(img, i)}
+                    className="absolute top-1 right-1 w-5 h-5 bg-red-600 text-white text-xs rounded-full flex items-center justify-center cursor-pointer"
+                  >
+                    <IoMdClose />
+                  </span>
+                  <div className="h-[150px] w-[100%] bg-gray-100 border border-dashed rounded-md flex items-center justify-center overflow-hidden">
+                    <img
+                      src={img}
+                      alt={`img-${i}`}
+                      className="object-contain h-full"
+                    />
+                  </div>
+                </div>
+              ))}
               <UploadBox
-                multiple={true}
+                multiple
                 name="images"
                 url="/api/product/uploadImages"
                 setPreviewsFun={setPreviewsFun}
@@ -650,69 +555,231 @@ const AddProduct = () => {
             </div>
           </div>
 
-          <div className="col w-full p-5 px-0">
-            <div className="bg-gray-100 p-4 w-full">
-              <div className="flex items-center gap-8">
-                <h3 className="font-[700] text-[18px] mb-3">Banner Images</h3>
-                <Switch
-                  {...label}
-                  onChange={handleChangeSwitch}
-                  checked={checkedSwitch}
+          {/* Variant Toggle Button */}
+          <div className="flex justify-between items-center">
+            <h2 className="text-lg font-semibold text-gray-700">
+              Product Variants
+            </h2>
+            <button
+              type="button"
+              onClick={toggleVariantForm}
+              className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-3 py-1 rounded flex items-center gap-1"
+            >
+              {showVariants ? "Hide" : "Add"} Variants
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className={`w-4 h-4 transition-transform ${
+                  showVariants ? "rotate-180" : ""
+                }`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
                 />
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
-                {bannerPreviews?.length !== 0 &&
-                  bannerPreviews?.map((image, index) => {
-                    return (
-                      <div className="uploadBoxWrapper relative" key={index}>
-                        <span
-                          className="absolute w-[20px] h-[20px] rounded-full  overflow-hidden bg-red-700 -top-[5px] -right-[5px] flex items-center justify-center z-50 cursor-pointer"
-                          onClick={() => removeBannerImg(image, index)}
-                        >
-                          <IoMdClose className="text-white text-[17px]" />
-                        </span>
+              </svg>
+            </button>
+          </div>
 
-                        <div className="uploadBox p-0 rounded-md overflow-hidden border border-dashed border-[rgba(0,0,0,0.3)] h-[150px] w-[100%] bg-gray-100 cursor-pointer hover:bg-gray-200 flex items-center justify-center flex-col relative">
-                          <img src={image} className="w-100" />
+          {/* Variants */}
+          {showVariants && (
+            <div className="space-y-4">
+              {variants.map((variant, idx) => (
+                <div
+                  key={idx}
+                  className="bg-white p-4 md:p-5 rounded-xl shadow space-y-3 border border-gray-100"
+                >
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-sm font-semibold text-gray-700">
+                      Variant {idx + 1}
+                    </h3>
+                    {variants.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeVariant(idx)}
+                        className="w-9 h-9 text-xl flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600 shadow transition duration-200"
+                        title="Remove Variant"
+                      >
+                        &times;
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {[
+                      ["size", "Size"],
+                      ["color", "Color"],
+                      ["ram", "RAM"],
+                      ["storage", "Storage"],
+                      ["material", "Material"],
+                      ["weight", "Weight"],
+                      ["flavour", "Flavour"],
+                      ["dimensions", "Dimensions"],
+                      ["voltage", "Voltage"],
+                      ["regularPrice", "Regular Price *"],
+                      ["discountedPrice", "Discounted Price *"],
+                      ["stock", "Stock *"],
+                    ].map(([field, label]) => (
+                      <div key={field}>
+                        <label
+                          htmlFor={`${field}-${idx}`}
+                          className="block text-[11px] text-gray-600 mb-1"
+                        >
+                          {label}
+                        </label>
+                        <input
+                          type={
+                            [
+                              "regularPrice",
+                              "discountedPrice",
+                              "stock",
+                            ].includes(field)
+                              ? "number"
+                              : "text"
+                          }
+                          id={`${field}-${idx}`}
+                          name={field}
+                          placeholder={label}
+                          value={variant[field]}
+                          onChange={(e) => handleChange(e, idx)}
+                          className="w-full h-[34px] border border-gray-300 rounded-md px-2 text-xs focus:ring-1 focus:ring-blue-500"
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-4 pt-1">
+                    {variant.image && (
+                      <div className="relative w-[100px] h-[100px] shrink-0">
+                        <span
+                          onClick={() => removeVariantImage(idx)}
+                          className="absolute top-0 right-0 bg-red-600 text-white w-5 h-5 text-[10px] rounded-full flex items-center justify-center cursor-pointer"
+                        >
+                          <IoMdClose />
+                        </span>
+                        <div className="w-full h-full border border-dashed rounded-md bg-gray-100 flex items-center justify-center overflow-hidden">
+                          <img
+                            src={variant.image}
+                            alt={`img-${idx}`}
+                            className="object-contain h-full"
+                          />
                         </div>
                       </div>
-                    );
-                  })}
+                    )}
 
-                <UploadBox
-                  multiple={true}
-                  name="bannerimages"
-                  url="/api/product/uploadBannerImages"
-                  setPreviewsFun={setBannerImagesFun}
-                />
+                    <div className="w-[100px] h-[100px] shrink-0 border border-dashed rounded-md bg-white hover:bg-gray-100 transition flex items-center justify-center overflow-hidden">
+                      <div className="flex flex-col items-center justify-center text-[10px] text-gray-600 leading-tight text-center">
+                        <UploadBox
+                          name="images"
+                          url="/api/product/uploadImages"
+                          setPreviewsFun={(arr) =>
+                            setVariantPreviewsFun(arr, idx)
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <div className="text-right">
+                <button
+                  type="button"
+                  onClick={addVariant}
+                  className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-full shadow-md transition duration-300"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  Add Variant
+                </button>
               </div>
+            </div>
+          )}
 
-              <br />
-
-              <h3 className="font-[700] text-[18px] mb-3">Banner Title</h3>
-              <input
-                type="text"
-                className="w-full h-[40px] border border-[rgba(0,0,0,0.2)] focus:outline-none focus:border-[rgba(0,0,0,0.4)] rounded-sm p-3 text-sm"
-                name="bannerTitleName"
-                value={formFields.bannerTitleName}
-                onChange={onChangeInput}
+          {/* Banner Section */}
+          <div className="bg-white p-3 md:p-4 rounded-lg shadow-sm space-y-2">
+            <div className="flex justify-between items-center">
+              <h2 className="text-sm font-semibold text-gray-700">
+                Banner Images
+              </h2>
+              <Switch
+                {...label}
+                onChange={handleChangeSwitch}
+                checked={checkedSwitch}
+                disabled={bannerPreviews?.length === 0}
               />
             </div>
+
+            <p className="text-xs text-blue-600">
+              Recommended: <strong>1080 × 660</strong>
+            </p>
+
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
+              {bannerPreviews.map((img, i) => (
+                <div key={i} className="relative">
+                  <span
+                    onClick={() => removeBannerImg(img, i)}
+                    className="absolute top-1 right-1 w-5 h-5 bg-red-600 text-white text-xs rounded-full flex items-center justify-center cursor-pointer"
+                  >
+                    <IoMdClose />
+                  </span>
+                  <div className="h-[150px] bg-gray-100 border border-dashed rounded-md flex items-center justify-center overflow-hidden">
+                    <img src={img} className="object-contain h-full" />
+                  </div>
+                </div>
+              ))}
+              <UploadBox
+                multiple
+                name="bannerimages"
+                url="/api/product/uploadBannerImages"
+                setPreviewsFun={setBannerImagesFun}
+              />
+            </div>
+
+            <label className="block text-xs font-medium text-gray-700 mt-1">
+              Banner Title
+            </label>
+            <input
+              type="text"
+              className="w-full h-[34px] border border-gray-300 rounded-md px-2 text-xs focus:ring-1 focus:ring-blue-500"
+              name="bannerTitleName"
+              value={formFields.bannerTitleName}
+              onChange={onChangeInput}
+            />
           </div>
         </div>
 
-        <hr />
-        <br />
-        <Button type="submit" className="btn-blue btn-lg w-full flex gap-2">
-          {isLoading === true ? (
-            <CircularProgress color="inherit" />
-          ) : (
-            <>
-              <FaCloudUploadAlt className="text-[25px] text-white" />
-              Publish and View
-            </>
-          )}
-        </Button>
+        {/* Submit Button */}
+        <div>
+          <Button
+            type="submit"
+            className="btn-blue btn-md w-full flex items-center justify-center gap-2"
+          >
+            {isLoading ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              <>
+                <FaCloudUploadAlt className="text-base" />
+                Publish and View
+              </>
+            )}
+          </Button>
+        </div>
       </form>
     </section>
   );

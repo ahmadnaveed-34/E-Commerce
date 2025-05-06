@@ -44,7 +44,7 @@ const Navigation = (props) => {
             </div>
           )}
 
-          <div className="col_2 w-full lg:w-[80%]">
+          <div className="col_2 w-full lg:w-[80%] whitespace-normal">
             <ul className="flex items-center gap-3 nav">
               <li className="list-none">
                 <Link to="/" className="link transition text-[14px] font-[500]">
@@ -60,10 +60,20 @@ const Navigation = (props) => {
                     <li className="list-none relative" key={index}>
                       <Link
                         to={`/products?catId=${cat?._id}`}
-                        className="link transition text-[14px] font-[500]"
+                        className="link transition text-[14px] font-[500] "
                       >
-                        <Button className="link transition !font-[500] !text-[rgba(0,0,0,0.8)] hover:!text-[#ff5252] !py-4">
+                        <Button
+                          className={`link transition !font-[500] !text-[rgba(0,0,0,0.8)] hover:!text-[#ff5252] !py-4 ${
+                            context?.windowWidth > 992 &&
+                            cat?.children?.length !== 0 &&
+                            "!flex !gap-1"
+                          } `}
+                        >
                           {cat?.name}
+                          {context?.windowWidth > 992 &&
+                            cat?.children?.length !== 0 && (
+                              <LiaAngleDownSolid className="text-[13px] ml-auto text-gray-400" />
+                            )}
                         </Button>
                       </Link>
 
@@ -84,7 +94,7 @@ const Navigation = (props) => {
                                       {subCat?.name}
                                     </Button>
 
-                                    {subCat?.children?.length !== 0 && (
+                                    {/* {subCat?.children?.length !== 0 && (
                                       <div className="submenu absolute top-[0%] left-[100%] min-w-[150px] bg-white shadow-md opacity-0 transition-all">
                                         <ul>
                                           {subCat?.children?.map(
@@ -108,7 +118,7 @@ const Navigation = (props) => {
                                           )}
                                         </ul>
                                       </div>
-                                    )}
+                                    )} */}
                                   </Link>
                                 </li>
                               );
@@ -121,8 +131,6 @@ const Navigation = (props) => {
                 })}
             </ul>
           </div>
-
-     
         </div>
       </nav>
 

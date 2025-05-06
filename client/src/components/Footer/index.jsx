@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { LiaShippingFastSolid } from "react-icons/lia";
 import { PiKeyReturnLight } from "react-icons/pi";
 import { BsWallet2 } from "react-icons/bs";
@@ -25,9 +25,119 @@ import { ProductZoom } from "../ProductZoom";
 import { IoCloseSharp } from "react-icons/io5";
 import { ProductDetailsComponent } from "../ProductDetails";
 import AddAddress from "../../Pages/MyAccount/addAddress";
+import { IoMdClose } from "react-icons/io";
+import { postData } from "../../utils/api";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const Footer = () => {
   const context = useContext(MyContext);
+
+  const [selectedVariants, setSelectedVariants] = useState({});
+  const [filteredVariants, setFilteredVariants] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleClickActiveTab = (key, value) => {
+    const newSelected = { ...selectedVariants, [key]: value };
+
+    // Filter variants that match all selected keys
+    const filtered = context?.productVariantData.filter((variant) =>
+      Object.entries(newSelected).every(([k, v]) => variant[k] === v)
+    );
+
+    setSelectedVariants(newSelected);
+    setFilteredVariants(filtered);
+
+    // setRegularPrice(filtered[0]?.regularPrice);
+    // setDiscountedPrice(filtered[0]?.discountedPrice);
+    // setCountInStock(filtered[0]?.stock);
+
+    const variantIndex = context?.productVariantData.findIndex((variant) =>
+      Object.entries(newSelected).every(([k, v]) => variant[k] === v)
+    );
+
+    if (variantIndex !== -1) {
+      context?.setChangeProductPicIndex(
+        (context?.productVariantData.length || 0) + variantIndex
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (context?.showVariantModal) {
+      // Save current scroll position
+      const scrollX = window.scrollX;
+      const scrollY = window.scrollY;
+
+      document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = `-${scrollX}px`;
+      document.body.style.width = "100%";
+
+      return () => {
+        document.body.style.overflow = "";
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.left = "";
+        document.body.style.width = "";
+        window.scrollTo(scrollX, scrollY); // restore scroll
+      };
+    }
+  }, [context?.showVariantModal]);
+
+  const addToCart = (product, userId, quantity) => {
+    setIsLoading(true);
+    if (userId === undefined) {
+      context?.alertBox("error", "you are not login please login first");
+      return false;
+    }
+
+    if (filteredVariants?.length === 0 || filteredVariants?.length > 1) {
+      context?.alertBox(
+        "error",
+        "At least one valid product variant is required."
+      );
+      return setIsLoading(false);
+    }
+
+    if (filteredVariants[0]?.stock === 0) {
+      return context?.alertBox("error", "Stock not available for this variant");
+    }
+
+    const productItem = {
+      _id: product?._id,
+      productTitle: product?.name,
+      image: filteredVariants[0]?.image,
+      rating: product?.rating,
+      price: filteredVariants[0]?.discountedPrice,
+      oldPrice: filteredVariants[0]?.regularPrice,
+      quantity: quantity,
+      subTotal: parseInt(filteredVariants[0]?.discountedPrice * quantity),
+      productId: product?._id,
+      brand: product?.brand,
+      countInStock: filteredVariants[0]?.stock,
+      productVariantId: filteredVariants[0]?._id,
+    };
+
+    postData("/api/cart/add", productItem).then((res) => {
+      if (res?.error === false) {
+        context?.alertBox("success", res?.message);
+        context?.getCartItems();
+
+        setTimeout(() => {
+          context?.setShowVariantModal(false);
+          setIsLoading(false);
+          setSelectedVariants({});
+          setFilteredVariants([]);
+        }, 300);
+      } else {
+        context?.alertBox("error", res?.message);
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 300);
+      }
+    });
+  };
 
   return (
     <>
@@ -233,7 +343,7 @@ const Footer = () => {
         ) : (
           <>
             <div className="flex items-center justify-center flex-col pt-[100px] gap-5">
-              <img src="/empty-cart.png" className="w-[150px]" />
+              <img src="/empty-cart.png" alt="img" className="w-[150px]" />
               <h4>Your Cart is currently empty</h4>
               <Button
                 className="btn-org btn-sm"
@@ -290,10 +400,13 @@ const Footer = () => {
                 <div className="col1 w-[40%] px-3 py-8">
                   <ProductZoom
                     images={context?.openProductDetailsModal?.item?.images}
+                    variantImages={
+                      context?.openProductDetailsModal?.item?.variants
+                    }
                   />
                 </div>
 
-                <div className="col2 w-[60%] py-8 px-8 pr-16 productContent ">
+                <div className="col2 w-[60%] py-8 px-8 pr-16 productContent">
                   <ProductDetailsComponent
                     item={context?.openProductDetailsModal?.item}
                   />
@@ -303,6 +416,130 @@ const Footer = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {context?.showVariantModal && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-md rounded-xl shadow-2xl p-6 max-h-[90vh] overflow-y-auto animate-fadeIn relative">
+            {/* Close Button */}
+            <button
+              onClick={() => {
+                context?.setShowVariantModal(false);
+                setSelectedVariants({});
+                setFilteredVariants([]);
+              }}
+              className="absolute top-3 right-3 text-gray-500 hover:text-red-600 transition"
+            >
+              <IoMdClose className="text-2xl" />
+            </button>
+
+            {/* Title */}
+            <h2 className="text-xl font-semibold text-center text-gray-800 mb-6">
+              Choose Product Variant
+            </h2>
+
+            {/* Variant Selectors */}
+            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
+              {["size", "color", "material", "ram", "weight"].map((key) => {
+                const values = [
+                  ...new Set(
+                    context?.productVariantData
+                      .map((v) => v[key])
+                      .filter(Boolean)
+                  ),
+                ];
+
+                return (
+                  values.length > 0 && (
+                    <div key={key}>
+                      <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">
+                        {key}
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {values.map((val, i) => (
+                          <button
+                            key={i}
+                            onClick={() => handleClickActiveTab(key, val)}
+                            className={`px-3 py-1.5 rounded-full border text-sm transition 
+                    ${
+                      selectedVariants[key] === val
+                        ? "bg-orange-600 text-white border-orange-600"
+                        : "bg-gray-100 text-gray-800 border-gray-300"
+                    }`}
+                          >
+                            {val}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                );
+              })}
+            </div>
+
+            {/* Price + Stock */}
+            {filteredVariants?.[0] && (
+              <div className="mt-6 border-t pt-4 space-y-2">
+                <div className="flex justify-between text-sm text-gray-700">
+                  <span>Regular Price:</span>
+                  <span className="font-semibold line-through text-red-500">
+                    Rs. {filteredVariants[0]?.regularPrice}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm text-gray-700">
+                  <span>Discounted Price:</span>
+                  <span className="font-bold text-green-600">
+                    Rs. {filteredVariants[0]?.discountedPrice}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm text-gray-700">
+                  <span>In Stock:</span>
+                  <span className="font-semibold text-gray-800">
+                    {filteredVariants[0]?.stock} items
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Confirm Button */}
+            <div className="mt-6">
+              <Button
+                className={`
+      !w-full 
+      !py-3 
+      !rounded-lg 
+      !font-semibold 
+      !text-white 
+      !transition 
+      !duration-300 
+      !ease-in-out 
+      !flex items-center !justify-center
+      ${
+        filteredVariants?.length < 1
+          ? "!bg-gray-300 !cursor-not-allowed"
+          : "!bg-primary hover:!bg-red-600 hover:!scale-[1.02] !shadow-md"
+      }
+    `}
+                onClick={() => {
+                  addToCart(
+                    context?.modelProductData,
+                    context?.userData?._id,
+                    1
+                  );
+                }}
+                disabled={filteredVariants?.length < 1}
+              >
+                {isLoading === false ? (
+                  <span className="tracking-wide">
+                    🛒 Confirm & Add to Cart
+                  </span>
+                ) : (
+                  <CircularProgress color="inherit" />
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

@@ -20,6 +20,7 @@ import {
   userDetails,
   verifyEmailController,
   verifyForgotPasswordOtp,
+  addUserController,
 } from "../controllers/user.controller.js";
 import auth from "../middlewares/auth.js";
 import upload from "../middlewares/multer.js";
@@ -36,6 +37,7 @@ userRouter.put(
   upload.array("avatar"),
   userAvatarController
 );
+userRouter.post("/addUser", addUserController);
 userRouter.delete("/deteleImage", auth, removeImageFromCloudinary);
 userRouter.put("/:id", auth, updateUserDetails);
 userRouter.post("/forgot-password", forgotPasswordController);
