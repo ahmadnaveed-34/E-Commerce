@@ -104,7 +104,6 @@ const ProductItem = (props) => {
       setCartItemPrice(matchedItem?.price);
       setCartItemId(matchedItem?._id);
     }
-    // console.log(cartItem);
 
     if (cartItem) {
       setCartItem(cartItem);
@@ -224,7 +223,7 @@ const ProductItem = (props) => {
               )}
             </div>
           </Link>
-          {/* {console.log(quantity)} */}
+
           {/* Variant price/image badge if exists */}
           {/* {props?.item?.variants?.[0] && (
           <span className="absolute top-2 left-2 bg-primary text-white px-2 py-1 text-[12px] font-medium rounded shadow-sm z-20">
