@@ -256,8 +256,6 @@ export const ProductDetailsComponent = (props) => {
         </span>
       </div>
 
-
-
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-4">
         <div className="flex items-center gap-4">
           <span className="oldPrice line-through text-gray-500 text-[20px] font-[500]">
