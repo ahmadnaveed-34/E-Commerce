@@ -166,7 +166,7 @@ export const BannerList2 = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        <TablePagination
+        {/* <TablePagination
           rowsPerPageOptions={[10, 25, 100]}
           component="div"
           count={10}
@@ -174,7 +174,7 @@ export const BannerList2 = () => {
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+        /> */}
       </div>
 
       <Lightbox open={open} close={() => setOpen(false)} slides={photos} />

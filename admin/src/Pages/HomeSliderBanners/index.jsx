@@ -133,16 +133,16 @@ export const HomeSliderBanners = () => {
                   ?.reverse()
                   ?.map((item, index) => {
                     return (
-                      <TableRow>
+                      <TableRow key={index}>
                         <TableCell width={300}>
                           <div
                             className="flex items-center gap-4 w-[300px] cursor-pointer"
                             onClick={() => setOpen(true)}
                           >
-                            <div class="img w-full rounded-md overflow-hidden group">
+                            <div className="img w-full rounded-md overflow-hidden group">
                               <img
                                 src={item?.images[0]}
-                                class="w-full group-hover:scale-105 transition-all"
+                                className="w-full group-hover:scale-105 transition-all"
                               />
                             </div>
                           </div>
@@ -177,7 +177,7 @@ export const HomeSliderBanners = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        <TablePagination
+        {/* <TablePagination
           rowsPerPageOptions={[10, 25, 100]}
           component="div"
           count={10}
@@ -185,7 +185,7 @@ export const HomeSliderBanners = () => {
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+        /> */}
       </div>
 
       <Lightbox open={open} close={() => setOpen(false)} slides={photos} />
