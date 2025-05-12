@@ -58,7 +58,7 @@ Secure Payment Integration:
 
 Content and Display:
 
-- View dynamic Home Page Banners, Promotional Slides, and Popular/Featured Products managed by Admin
+- View dynamic Home Page Banners, Promotional Slides, and Popular/Featured Products managed by Admin.
 - Read Blogs posted and updated by Admin.
 
 State Management:

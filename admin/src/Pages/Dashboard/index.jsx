@@ -185,7 +185,7 @@ const Dashboard = () => {
             Here’s What happening on your store today. See the statistics at
             once.
           </p>
-          <br />
+          {/* <br />
           <Button
             className="btn-blue btn !capitalize"
             onClick={() =>
@@ -196,7 +196,7 @@ const Dashboard = () => {
             }
           >
             <FaPlus /> Add Product
-          </Button>
+          </Button> */}
         </div>
 
         <img

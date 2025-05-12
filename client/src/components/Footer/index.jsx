@@ -439,7 +439,17 @@ const Footer = () => {
 
             {/* Variant Selectors */}
             <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
-              {["size", "color", "material", "ram", "weight"].map((key) => {
+              {[
+                "size",
+                "color",
+                "material",
+                "ram",
+                "weight",
+                "storage",
+                "voltage",
+                "flavour",
+                "dimensions",
+              ].map((key) => {
                 const values = [
                   ...new Set(
                     context?.productVariantData

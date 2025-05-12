@@ -282,7 +282,17 @@ export const ProductDetailsComponent = (props) => {
 
       {/* Dynamic Variant Rendering */}
       <div className="space-y-3">
-        {["size", "color", "material", "ram", "weight"].map((key) => {
+        {[
+          "size",
+          "color",
+          "material",
+          "ram",
+          "weight",
+          "storage",
+          "voltage",
+          "flavour",
+          "dimensions",
+        ].map((key) => {
           const allVariants = props?.item?.variants || [];
 
           // Filter valid variants that match all other selected keys (except current key)
@@ -361,7 +371,7 @@ export const ProductDetailsComponent = (props) => {
 
       <div className="flex items-center gap-4 py-4">
         {isAdded && (
-          <div className="flex items-center justify-between overflow-hidden rounded-full border border-[rgba(0,0,0,0.1)]">
+          <div className="flex items-center justify-between overflow-hidden gap-4 rounded-full border border-[rgba(0,0,0,0.1)]">
             <Button
               className="!min-w-[35px] !w-[35px] !h-[30px] !bg-[#f1f1f1] !rounded-none"
               onClick={minusQty}

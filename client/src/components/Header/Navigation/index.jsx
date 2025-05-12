@@ -45,7 +45,7 @@ const Navigation = (props) => {
           )}
 
           <div className="col_2 w-full lg:w-[80%] whitespace-normal">
-            <ul className="flex items-center gap-3 nav">
+            <ul className="flex items-center gap-1 nav">
               <li className="list-none">
                 <Link to="/" className="link transition text-[14px] font-[500]">
                   <Button className="link transition !font-[500] !text-[rgba(0,0,0,0.8)] hover:!text-[#ff5252] !py-4">
