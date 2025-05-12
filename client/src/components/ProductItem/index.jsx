@@ -104,7 +104,6 @@ const ProductItem = (props) => {
       setCartItemPrice(matchedItem?.price);
       setCartItemId(matchedItem?._id);
     }
-    // console.log(cartItem);
 
     if (cartItem) {
       setCartItem(cartItem);
