@@ -108,7 +108,7 @@ export const CategoryList = () => {
                     <TableRow key={index}>
                       <TableCell width={100}>
                         <div className="flex items-center gap-4 w-[50px]">
-                          <div class="img w-full rounded-md overflow-hidden group">
+                          <div className="img w-full rounded-md overflow-hidden group">
                             <Link to="/product/45745" data-discover="true">
                               <LazyLoadImage
                                 alt={"image"}
@@ -152,7 +152,7 @@ export const CategoryList = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        <TablePagination
+        {/* <TablePagination
           rowsPerPageOptions={[10, 25, 100]}
           component="div"
           count={10}
@@ -160,7 +160,7 @@ export const CategoryList = () => {
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+        /> */}
       </div>
     </>
   );

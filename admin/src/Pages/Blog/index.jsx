@@ -123,12 +123,12 @@ export const BlogList = () => {
                         <TableCell width={100}>
                           <div className="flex items-center gap-4 w-[200px]">
                             <div
-                              class="img w-full rounded-md overflow-hidden group cursor-pointer"
+                              className="img w-full rounded-md overflow-hidden group cursor-pointer"
                               onClick={() => setOpen(true)}
                             >
                               <img
                                 src={item?.images[0]}
-                                class="w-full group-hover:scale-105 transition-all"
+                                className="w-full group-hover:scale-105 transition-all"
                               />
                             </div>
                           </div>
@@ -181,7 +181,7 @@ export const BlogList = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        <TablePagination
+        {/* <TablePagination
           rowsPerPageOptions={[10, 25, 100]}
           component="div"
           count={10}
@@ -189,7 +189,7 @@ export const BlogList = () => {
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+        /> */}
       </div>
 
       <Lightbox open={open} close={() => setOpen(false)} slides={photos} />
