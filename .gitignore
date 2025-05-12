@@ -3,7 +3,7 @@ node_modules/
 **/node_modules/
 
 # Other common ignores
-.env
+
 .DS_Store
 *.log
 npm-debug.log*
