@@ -151,7 +151,6 @@ const ProductItem = (props) => {
     if (quantity < productMaxQty) {
       const newQty = quantity + 1;
       setQuantity(newQty);
-      console.log(newQty);
 
       const cartObj = {
         _id: cartItemId,
