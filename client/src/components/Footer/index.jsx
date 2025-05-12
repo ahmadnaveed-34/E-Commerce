@@ -100,8 +100,9 @@ const Footer = () => {
       return setIsLoading(false);
     }
 
-    if (filteredVariants[0]?.stock === 0) {
-      return context?.alertBox("error", "Stock not available for this variant");
+    if (filteredVariants[0]?.stock <= 0) {
+      context?.alertBox("error", "Stock not available for this variant");
+      return setIsLoading(false);
     }
 
     const productItem = {

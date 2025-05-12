@@ -73,7 +73,7 @@ export const ProductDetailsComponent = (props) => {
       );
     }
 
-    if (filteredVariants[0]?.stock === 0) {
+    if (filteredVariants[0]?.stock <= 0) {
       return context?.alertBox("error", "Stock not available for this variant");
     }
 
