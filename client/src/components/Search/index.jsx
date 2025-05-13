@@ -93,7 +93,10 @@ const Search = () => {
                 key={item._id}
                 to={`/product/${item?._id}`}
                 className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-md cursor-pointer transition"
-                onClick={() => setIsShowDropDown(false)}
+                onClick={() => {
+                  setIsShowDropDown(false);
+                  context?.setOpenSearchPanel(false);
+                }}
               >
                 <img
                   src={item?.images[0]}
