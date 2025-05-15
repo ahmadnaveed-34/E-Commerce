@@ -90,60 +90,81 @@ export async function uploadBannerImages(request, response) {
 }
 
 //create product
-export async function createProduct(request, response) {
+export async function createProduct(req, res) {
   try {
-    const variants = request.body.variants;
+    const {
+      name,
+      description,
+      images,
+      brand,
+      catName,
+      catId,
+      subCatId,
+      subCat,
+      category,
+      rating,
+      isFeatured,
+      sale,
+      bannerimages,
+      bannerTitleName,
+      isDisplayOnHomeBanner,
+      variantCombinations,
+    } = req.body;
 
-    // ✅ Validate variants before using
-    if (!variants || !Array.isArray(variants) || variants.length === 0) {
-      return response.status(400).json({
+    // ✅ Validate variant combinations
+    if (
+      !variantCombinations ||
+      !Array.isArray(variantCombinations) ||
+      variantCombinations.length === 0
+    ) {
+      return res.status(400).json({
         success: false,
         error: true,
-        message: "Please add at least one product variant",
+        message: "Please provide at least one variant combination.",
       });
     }
 
-    let product = new ProductModel({
-      name: request.body.name,
-      description: request.body.description,
-      images: request.body.images,
-      bannerimages: bannerImage,
-      bannerTitleName: request.body.bannerTitleName,
-      isDisplayOnHomeBanner: request.body.isDisplayOnHomeBanner,
-      brand: request.body.brand,
-      catName: request.body.catName,
-      category: request.body.category,
-      catId: request.body.catId,
-      subCatId: request.body.subCatId,
-      subCat: request.body.subCat,
-      rating: request.body.rating,
-      isFeatured: request.body.isFeatured,
-      variants: variants,
+    // ✅ Create product
+    const product = new ProductModel({
+      name,
+      description,
+      images,
+      brand,
+      catName,
+      catId,
+      subCatId,
+      subCat,
+      category,
+      rating,
+      isFeatured,
+      sale,
+      bannerimages,
+      bannerTitleName,
+      isDisplayOnHomeBanner,
+      variantCombinations, // 🔄 new key aligned with schema
     });
 
-    product = await product.save();
+    const saved = await product.save();
 
-    if (!product) {
-      return response.status(500).json({
-        error: true,
+    if (!saved) {
+      return res.status(500).json({
         success: false,
-        message: "Failed to create product",
+        error: true,
+        message: "Failed to create product.",
       });
     }
 
-    imagesArr = [];
-
-    return response.status(200).json({
-      message: "Product created successfully",
-      error: false,
+    return res.status(201).json({
       success: true,
-      product: product,
+      error: false,
+      message: "Product created successfully.",
+      product: saved,
     });
   } catch (error) {
-    return response.status(500).json({
-      message: error.message || error,
-      error: true,
+    return res.status(500).json({
       success: false,
+      error: true,
+      message: error.message || "Something went wrong",
     });
   }
 }
@@ -952,57 +973,81 @@ export async function removeImageFromCloudinary(request, response) {
 }
 
 //updated product
-export async function updateProduct(request, response) {
+export async function updateProduct(req, res) {
   try {
-    const variants = request.body.variants;
+    const {
+      name,
+      description,
+      images,
+      bannerimages,
+      bannerTitleName,
+      isDisplayOnHomeBanner,
+      brand,
+      catName,
+      catId,
+      subCatId,
+      subCat,
+      category,
+      rating,
+      isFeatured,
+      sale,
+      variantCombinations,
+    } = req.body;
 
-    if (!variants || !Array.isArray(variants) || variants.length === 0) {
-      return response.status(400).json({
+    // ✅ Validate variant combinations
+    if (
+      !variantCombinations ||
+      !Array.isArray(variantCombinations) ||
+      variantCombinations.length === 0
+    ) {
+      return res.status(400).json({
         success: false,
         error: true,
         message: "Please add at least one product variant",
       });
     }
 
+    // ✅ Update product in DB
     const updatedProduct = await ProductModel.findByIdAndUpdate(
-      request.params.id,
+      req.params.id,
       {
-        name: request.body.name,
-        description: request.body.description,
-        images: request.body.images,
-        bannerimages: request.body.bannerimages,
-        bannerTitleName: request.body.bannerTitleName,
-        isDisplayOnHomeBanner: request.body.isDisplayOnHomeBanner,
-        brand: request.body.brand,
-        catName: request.body.catName,
-        category: request.body.category,
-        catId: request.body.catId,
-        subCatId: request.body.subCatId,
-        subCat: request.body.subCat,
-        rating: request.body.rating,
-        isFeatured: request.body.isFeatured,
-        variants: variants,
+        name,
+        description,
+        images,
+        bannerimages,
+        bannerTitleName,
+        isDisplayOnHomeBanner,
+        brand,
+        catName,
+        catId,
+        subCatId,
+        subCat,
+        category,
+        rating,
+        isFeatured,
+        sale,
+        variantCombinations, // 🔄 replaced old `variants` with correct field
       },
       { new: true }
     );
 
     if (!updatedProduct) {
-      return response.status(404).json({
+      return res.status(404).json({
         message: "The product cannot be updated!",
         error: true,
         success: false,
       });
     }
 
-    return response.status(200).json({
+    return res.status(200).json({
       message: "Product updated successfully",
       error: false,
       success: true,
       product: updatedProduct,
     });
   } catch (error) {
-    return response.status(500).json({
-      message: error.message || error,
+    return res.status(500).json({
+      message: error.message || "Server Error",
       error: true,
       success: false,
     });
@@ -1461,8 +1506,9 @@ export async function filters(request, response) {
     filters.thirdsubCatId = { $in: thirdsubCatId };
   }
 
+  // ✅ Filter based on variantCombinations.discountedPrice
   if (minPrice || maxPrice) {
-    filters.variants = {
+    filters.variantCombinations = {
       $elemMatch: {
         discountedPrice: {
           ...(minPrice ? { $gte: Number(minPrice) } : {}),
@@ -1481,7 +1527,7 @@ export async function filters(request, response) {
 
   try {
     const products = await ProductModel.find(filters)
-      .populate("category") // Check if "category" field exists properly
+      .populate("category")
       .skip((currentPage - 1) * pageSize)
       .limit(pageSize);
 
@@ -1515,7 +1561,7 @@ const sortItems = (products, sortBy, order) => {
 
     if (sortBy === "price") {
       const getPrice = (product) =>
-        product.variants?.[0]?.discountedPrice ?? Infinity;
+        product.variantCombinations?.[0]?.discountedPrice ?? Infinity;
 
       const priceA = getPrice(a);
       const priceB = getPrice(b);

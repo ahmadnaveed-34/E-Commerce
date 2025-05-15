@@ -73,7 +73,7 @@ const OrderConfirmationEmail = (username, orders) => {
                     <tr>
                       <td>${product?.productTitle}</td>
                       <td>${product?.quantity}</td>
-                      <td>${product?.subTotal?.toLocaleString("en-US", {
+                      <td>${product?.price?.toLocaleString("en-US", {
                         style: "currency",
                         currency: "PKR",
                       })}</td>
@@ -92,7 +92,7 @@ const OrderConfirmationEmail = (username, orders) => {
                               ? orders?.products
                                   ?.map(
                                     (item) =>
-                                      parseInt(item.subTotal) * item.quantity
+                                      parseInt(item.price) * item.quantity
                                   )
                                   .reduce((total, value) => total + value, 0)
                               : 0

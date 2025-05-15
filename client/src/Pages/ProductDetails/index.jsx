@@ -107,7 +107,7 @@ export const ProductDetails = () => {
               <div className="productZoomContainer w-full lg:w-[40%]">
                 <ProductZoom
                   images={productData?.images}
-                  variantImages={productData?.variants}
+                  variantImages={productData?.variantCombinations}
                 />
               </div>
 

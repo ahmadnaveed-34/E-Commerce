@@ -10,21 +10,33 @@ const orderSchema = new mongoose.Schema(
       {
         productId: {
           type: String,
+          required: true,
+        },
+        productVariantId: {
+          type: String, // This will store the _id of the specific variant
+          required: true,
         },
         productTitle: {
           type: String,
         },
         quantity: {
           type: Number,
+          required: true,
         },
         price: {
           type: Number,
+          required: true,
         },
         image: {
           type: String,
         },
         subTotal: {
           type: Number,
+          required: true,
+        },
+        variantOptions: {
+          type: Object, // Example: { Size: "M", Color: "Red" }
+          default: {},
         },
       },
     ],

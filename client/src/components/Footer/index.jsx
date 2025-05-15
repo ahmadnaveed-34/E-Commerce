@@ -39,25 +39,29 @@ const Footer = () => {
   const handleClickActiveTab = (key, value) => {
     const newSelected = { ...selectedVariants, [key]: value };
 
-    // Filter variants that match all selected keys
+    // ✅ Filter variant combinations that match all selected options
     const filtered = context?.productVariantData.filter((variant) =>
-      Object.entries(newSelected).every(([k, v]) => variant[k] === v)
+      Object.entries(newSelected).every(([k, v]) => variant.options?.[k] === v)
     );
 
     setSelectedVariants(newSelected);
+
     setFilteredVariants(filtered);
 
-    // setRegularPrice(filtered[0]?.regularPrice);
-    // setDiscountedPrice(filtered[0]?.discountedPrice);
-    // setCountInStock(filtered[0]?.stock);
+    // if (filtered?.[0]) {
+    //   setRegularPrice(filtered[0].regularPrice || 0);
+    //   setDiscountedPrice(filtered[0].discountedPrice || 0);
+    //   setCountInStock(filtered[0].stock || 0);
+    // }
 
+    // ✅ Optional: update image index for selected variant
     const variantIndex = context?.productVariantData.findIndex((variant) =>
-      Object.entries(newSelected).every(([k, v]) => variant[k] === v)
+      Object.entries(newSelected).every(([k, v]) => variant.options?.[k] === v)
     );
 
     if (variantIndex !== -1) {
       context?.setChangeProductPicIndex(
-        (context?.productVariantData.length || 0) + variantIndex
+        (context?.productImages?.length || 0) + variantIndex
       );
     }
   };
@@ -402,7 +406,8 @@ const Footer = () => {
                   <ProductZoom
                     images={context?.openProductDetailsModal?.item?.images}
                     variantImages={
-                      context?.openProductDetailsModal?.item?.variants
+                      context?.openProductDetailsModal?.item
+                        ?.variantCombinations
                     }
                   />
                 </div>
@@ -420,7 +425,7 @@ const Footer = () => {
 
       {context?.showVariantModal && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-xl shadow-2xl p-6 max-h-[90vh] overflow-y-auto animate-fadeIn relative">
+          <div className="bg-white w-[95%] max-w-md rounded-xl shadow-2xl p-6 max-h-[90vh] overflow-y-auto animate-fadeIn relative">
             {/* Close Button */}
             <button
               onClick={() => {
@@ -439,22 +444,19 @@ const Footer = () => {
             </h2>
 
             {/* Variant Selectors */}
+
             <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
               {[
-                "size",
-                "color",
-                "material",
-                "ram",
-                "weight",
-                "storage",
-                "voltage",
-                "flavour",
-                "dimensions",
+                ...new Set(
+                  context?.productVariantData?.flatMap((v) =>
+                    Object.keys(v.options || {})
+                  )
+                ),
               ].map((key) => {
                 const values = [
                   ...new Set(
                     context?.productVariantData
-                      .map((v) => v[key])
+                      .map((v) => v.options?.[key])
                       .filter(Boolean)
                   ),
                 ];
@@ -471,11 +473,11 @@ const Footer = () => {
                             key={i}
                             onClick={() => handleClickActiveTab(key, val)}
                             className={`px-3 py-1.5 rounded-full border text-sm transition 
-                    ${
-                      selectedVariants[key] === val
-                        ? "bg-orange-600 text-white border-orange-600"
-                        : "bg-gray-100 text-gray-800 border-gray-300"
-                    }`}
+                ${
+                  selectedVariants[key] === val
+                    ? "bg-orange-600 text-white border-orange-600"
+                    : "bg-gray-100 text-gray-800 border-gray-300"
+                }`}
                           >
                             {val}
                           </button>
@@ -488,24 +490,31 @@ const Footer = () => {
             </div>
 
             {/* Price + Stock */}
+
             {filteredVariants?.[0] && (
               <div className="mt-6 border-t pt-4 space-y-2">
                 <div className="flex justify-between text-sm text-gray-700">
                   <span>Regular Price:</span>
                   <span className="font-semibold line-through text-red-500">
-                    Rs. {filteredVariants[0]?.regularPrice}
+                    Rs.{" "}
+                    {filteredVariants[0]?.regularPrice?.toLocaleString() || 0}
                   </span>
                 </div>
+
                 <div className="flex justify-between text-sm text-gray-700">
                   <span>Discounted Price:</span>
                   <span className="font-bold text-green-600">
-                    Rs. {filteredVariants[0]?.discountedPrice}
+                    Rs.{" "}
+                    {filteredVariants[0]?.discountedPrice?.toLocaleString() ||
+                      0}
                   </span>
                 </div>
+
                 <div className="flex justify-between text-sm text-gray-700">
-                  <span>In Stock:</span>
+                  <span>Stock Available:</span>
                   <span className="font-semibold text-gray-800">
-                    {filteredVariants[0]?.stock} items
+                    {filteredVariants[0]?.stock ?? 0} item
+                    {filteredVariants[0]?.stock === 1 ? "" : "s"}
                   </span>
                 </div>
               </div>

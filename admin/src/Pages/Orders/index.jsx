@@ -284,6 +284,12 @@ export const Orders = () => {
                                     scope="col"
                                     className="px-6 py-3 whitespace-nowrap"
                                   >
+                                    Variant
+                                  </th>
+                                  <th
+                                    scope="col"
+                                    className="px-6 py-3 whitespace-nowrap"
+                                  >
                                     Quantity
                                   </th>
                                   <th
@@ -318,6 +324,23 @@ export const Orders = () => {
                                           src={item?.image}
                                           className="w-[40px] h-[40px] object-cover rounded-md"
                                         />
+                                      </td>
+
+                                      <td className="px-6 py-4 text-sm text-gray-700">
+                                        <div className="space-y-1">
+                                          {/* Display Variant Options */}
+                                          {item.variantOptions &&
+                                            Object.entries(
+                                              item.variantOptions
+                                            ).map(([key, val]) => (
+                                              <div key={key}>
+                                                <span className="font-medium capitalize">
+                                                  {key}:
+                                                </span>{" "}
+                                                <span>{val}</span>
+                                              </div>
+                                            ))}
+                                        </div>
                                       </td>
 
                                       <td className="px-6 py-4 font-[500] whitespace-nowrap">

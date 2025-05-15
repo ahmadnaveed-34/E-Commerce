@@ -179,8 +179,9 @@ const ProductItem = (props) => {
         productTitle: item?.name,
         image: item?.images[0],
         rating: item?.rating,
-        price: item?.variants[0]?.discountedPrice,
-        oldPrice: item?.variants[0]?.regularPrice,
+        price: item?.variantCombinations?.[0]?.discountedPrice || 0,
+        oldPrice: item?.variantCombinations?.[0]?.regularPrice || 0,
+
         brand: item?.brand,
       };
 
@@ -198,7 +199,7 @@ const ProductItem = (props) => {
 
   const handleShowVariantBox = () => {
     context?.setShowVariantModal(true);
-    context?.setProductVarinatData(props?.item?.variants);
+    context?.setProductVarinatData(props?.item?.variantCombinations);
     context?.setModelProductData(props?.item);
   };
 
@@ -223,19 +224,23 @@ const ProductItem = (props) => {
             </div>
           </Link>
 
-          {/* Variant price/image badge if exists */}
-          {/* {props?.item?.variants?.[0] && (
-          <span className="absolute top-2 left-2 bg-primary text-white px-2 py-1 text-[12px] font-medium rounded shadow-sm z-20">
-            Rs. {props?.item?.variants[0]?.discountedPrice}
-          </span>
-        )} */}
+          {/* Badge showing price from first variant */}
+          {props?.item?.variantCombinations?.[0] && (
+            <span className="absolute top-2 left-2 bg-primary text-white px-2 py-1 text-[12px] font-medium rounded shadow-sm z-20">
+              Rs. {props?.item?.variantCombinations?.[0]?.discountedPrice}
+            </span>
+          )}
 
+          {/* Action Buttons */}
           <div className="actions absolute top-[-20px] right-[5px] z-50 flex items-center gap-2 flex-col w-[50px] transition-all duration-300 group-hover:top-[15px] opacity-0 group-hover:opacity-100">
             <Button
               className="!w-[35px] !h-[35px] !min-w-[35px] !rounded-full !bg-white text-black hover:!bg-primary hover:text-white"
-              onClick={() =>
-                context.handleOpenProductDetailsModal(true, props?.item)
-              }
+              onClick={() => {
+                context.handleOpenProductDetailsModal(true, props?.item);
+                context?.setProductVarinatData(
+                  props?.item?.variantCombinations
+                );
+              }}
             >
               <MdZoomOutMap className="text-[18px]" />
             </Button>
@@ -252,6 +257,7 @@ const ProductItem = (props) => {
           </div>
         </div>
 
+        {/* Info Section */}
         <div className="info p-3 py-5 relative pb-[50px] h-[190px]">
           <h6 className="text-[13px] font-[400]">{props?.item?.brand}</h6>
           <h3 className="text-[12px] lg:text-[13px] font-[500] mb-1 text-black">
@@ -269,20 +275,21 @@ const ProductItem = (props) => {
             readOnly
           />
 
-          {/* Show prices from variant if available */}
+          {/* Prices from first variant */}
           <div className="flex items-center justify-between">
-            {props?.item?.variants?.[0] && (
+            {props?.item?.variantCombinations?.[0] && (
               <>
                 <span className="line-through text-gray-500 text-[12px] font-medium">
-                  Rs. {props?.item?.variants[0]?.regularPrice}
+                  Rs. {props?.item?.variantCombinations[0]?.regularPrice}
                 </span>
                 <span className="text-primary text-[13px] font-semibold">
-                  Rs. {props?.item?.variants[0]?.discountedPrice}
+                  Rs. {props?.item?.variantCombinations[0]?.discountedPrice}
                 </span>
               </>
             )}
           </div>
 
+          {/* Add to cart / quantity control */}
           <div className="absolute bottom-[15px] left-0 pl-3 pr-3 w-full">
             {!isAdded ? (
               <Button

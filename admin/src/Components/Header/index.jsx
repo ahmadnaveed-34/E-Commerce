@@ -35,6 +35,7 @@ import EditBlog from "../../Pages/Blog/editBlog";
 import EditHomeSlide from "../../Pages/HomeSliderBanners/editHomeSlide";
 import { CircularProgress } from "@mui/material";
 import { TextField, Select, InputLabel, FormControl } from "@mui/material";
+import { IoClose } from "react-icons/io5";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -391,14 +392,41 @@ const Header = () => {
 
       <Dialog
         open={context?.openAddUserModal}
-        onClose={context?.handleCloseAddUser}
+        onClose={() => {
+          context?.handleCloseAddUser();
+          setFormFields({
+            name: "",
+            email: "",
+            password: "",
+            role: "",
+          });
+        }}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
         <form
-          className="w-full max-w-lg mx-auto p-8 md:p-10 bg-white rounded-xl shadow-lg"
+          className="w-full max-w-lg mx-auto p-8 md:p-6 bg-white rounded-xl shadow-lg"
           onSubmit={handleSubmit}
         >
+          <div className="flex justify-end">
+            <button
+              type="button"
+              className="p-2 rounded-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm"
+              onClick={() => {
+                context?.handleCloseAddUser?.();
+                setFormFields({
+                  name: "",
+                  email: "",
+                  password: "",
+                  role: "",
+                });
+              }}
+              aria-label="Close"
+            >
+              <IoClose className="text-2xl text-gray-500 hover:text-gray-700" />
+            </button>
+          </div>
+
           <div className="text-center mb-4">
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
               Create New Account
@@ -406,82 +434,83 @@ const Header = () => {
           </div>
 
           <div className="mb-3">
-            <TextField
-              fullWidth
-              id="name"
-              name="name"
-              label="Full Name"
-              variant="outlined"
-              value={formFields.name}
-              disabled={isLoading}
-              onChange={onChangeInput}
-              size="small"
-              required
-            />
+            <label
+              htmlFor="full name"
+              className="block text-sm font-semibold text-gray-700 mb-1"
+            >
+              Full Name
+            </label>
+            <FormControl fullWidth size="small" variant="outlined">
+              <TextField
+                id="name"
+                name="name"
+                value={formFields.name}
+                onChange={onChangeInput}
+                size="small"
+                required
+                disabled={isLoading}
+              />
+            </FormControl>
           </div>
 
           {/* Email */}
           <div className="mb-3">
-            <TextField
-              fullWidth
-              id="email"
-              name="email"
-              label="Email Address"
-              type="email"
-              variant="outlined"
-              value={formFields.email}
-              disabled={isLoading}
-              onChange={onChangeInput}
-              size="small"
-              required
-            />
+            <label
+              htmlFor="email"
+              className="block text-sm font-semibold text-gray-700 mb-1"
+            >
+              Email
+            </label>
+            <FormControl fullWidth size="small" variant="outlined">
+              <TextField
+                id="email"
+                name="email"
+                type="email"
+                value={formFields.email}
+                onChange={onChangeInput}
+                disabled={isLoading}
+                size="small"
+                required
+                variant="outlined"
+              />
+            </FormControl>
           </div>
 
           {/* Role Selection */}
           <div className="mb-3">
-            <FormControl fullWidth size="small">
-              <InputLabel id="role-label">Role</InputLabel>
-              <Select
-                labelId="role-label"
-                id="role"
-                name="role"
-                value={formFields.role}
-                label="Role"
-                onChange={onChangeInput}
-                disabled={isLoading}
-                required
-              >
-                <MenuItem value="USER">User</MenuItem>
-                <MenuItem value="ADMIN">Admin</MenuItem>
-              </Select>
-            </FormControl>
+            <label
+              htmlFor="role"
+              className="block text-sm font-semibold text-gray-700 mb-1"
+            >
+              Role
+            </label>
+            <select
+              id="role"
+              name="role"
+              value={formFields.role}
+              onChange={onChangeInput}
+              disabled={isLoading}
+              required
+              className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-1 focus:ring-blue-700 focus:border-blue-500 outline-none transition duration-150"
+            >
+              <option value={null}>Select Role</option>
+              <option value="USER">User</option>
+              <option value="ADMIN">Admin</option>
+            </select>
           </div>
 
           {/* Password with Generate Button */}
-          <div className="mb-4">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
+          <div className="mb-6">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 tracking-wide">
               Password
             </label>
-            <div className="flex items-center gap-2">
-              <TextField
-                fullWidth
-                name="password"
-                value={formFields.password}
-                size="small"
-                variant="outlined"
-                InputProps={{
-                  readOnly: true,
-                }}
-                disabled={isLoading}
-              />
-              <Button
-                type="button"
-                className="h-11 !px-4 bg-primary hover:bg-primary-dark text-white rounded-md"
-                onClick={generatePassword}
-              >
-                Generate
-              </Button>
-            </div>
+            <Button
+              type="button"
+              className="!w-full !py-3 !text-sm !font-semibold !text-white bg-gradient-to-r !from-green-600 !to-green-700 hover:!from-green-700 hover:!to-green-800 !rounded-xl !shadow-lg hover:!shadow-xl !transition-all !duration-200 !ease-in-out"
+              onClick={generatePassword}
+            >
+              🔐 Generate Secure Password
+            </Button>
           </div>
 
           {/* Submit Button */}

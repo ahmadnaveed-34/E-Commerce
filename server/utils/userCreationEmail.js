@@ -88,8 +88,19 @@ const userCreationEmail = (name, email, role, password) => {
                   <p><strong>Role:</strong> ${role}</p>
               </div>
   
-              <p>Please log in using these credentials and make sure to update your password after first login for security purposes.</p>
-  
+            <p>
+            Please log in using these credentials by clicking the link below:
+            </p>
+
+            <p>
+            👉 <a href="http://localhost:3000/login" target="_blank" rel="noopener noreferrer">
+                http://localhost:3000/login
+            </a>
+            </p>
+
+            <p>
+            After logging in, please navigate to <strong>My Account</strong> to update your password for security purposes.
+            </p>
 
           </div>
   

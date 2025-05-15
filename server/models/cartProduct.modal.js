@@ -21,18 +21,7 @@ const cartProductSchema = new mongoose.Schema(
     oldPrice: {
       type: Number,
     },
-    // discount:{
-    //     type:Number,
-    // },
-    // size:{
-    //     type:String,
-    // },
-    // weight:{
-    //     type:String,
-    // },
-    // ram:{
-    //     type:String,
-    // },
+
     quantity: {
       type: Number,
       required: true,

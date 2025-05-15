@@ -7,64 +7,109 @@ import sendEmailFun from "../config/sendEmail.js";
 
 export const createOrderController = async (request, response) => {
   try {
+    const {
+      userId,
+      products,
+      paymentId,
+      payment_status,
+      delivery_address,
+      totalAmt,
+      date,
+    } = request.body;
+
+    // 1. Prepare products with variantOptions for saving in order
+    const enrichedProducts = await Promise.all(
+      products.map(async (item) => {
+        const {
+          productId,
+          productVariantId,
+          quantity,
+          price,
+          image,
+          subTotal,
+          productTitle,
+        } = item;
+
+        const product = await ProductModel.findById(productId);
+        let variantOptions = {};
+
+        if (product) {
+          const variant = product.variantCombinations?.find(
+            (v) => v._id?.toString() === productVariantId
+          );
+          if (variant) {
+            variantOptions = variant.options || {};
+          }
+        }
+
+        return {
+          productId,
+          productVariantId,
+          productTitle,
+          quantity,
+          price,
+          image,
+          subTotal,
+          variantOptions,
+        };
+      })
+    );
+
+    // 2. Create and save order
     let order = new OrderModel({
-      userId: request.body.userId,
-      products: request.body.products,
-      paymentId: request.body.paymentId,
-      payment_status: request.body.payment_status,
-      delivery_address: request.body.delivery_address,
-      totalAmt: request.body.totalAmt,
-      date: request.body.date,
+      userId,
+      products: enrichedProducts,
+      paymentId,
+      payment_status,
+      delivery_address,
+      totalAmt,
+      date,
     });
+
+    order = await order.save();
 
     if (!order) {
       return response.status(500).json({
         error: true,
         success: false,
-        message: "Failed to create order object",
+        message: "Failed to create order",
       });
     }
 
-    order = await order.save();
-
-    for (let i = 0; i < request.body.products.length; i++) {
-      const { productId, productVariantId, quantity } =
-        request.body.products[i];
+    // 3. Reduce stock per variant
+    for (const item of enrichedProducts) {
+      const { productId, productVariantId, quantity } = item;
       const product = await ProductModel.findById(productId);
       if (!product) continue;
 
-      // Update variant stock
-      const variantIndex = product.variants.findIndex(
-        (v) => v._id.toString() === productVariantId
+      const variant = product.variantCombinations.find(
+        (v) => v._id?.toString() === productVariantId
       );
 
-      if (variantIndex !== -1) {
-        product.variants[variantIndex].stock -= quantity;
+      if (variant) {
+        variant.stock = Math.max(0, (variant.stock || 0) - quantity);
       }
 
-      // Update product sale count
-      product.sale = parseInt(product.sale || 0) + quantity;
-
+      product.sale = (product.sale || 0) + quantity;
       await product.save();
     }
 
-    const user = await UserModel.findOne({ _id: request.body.userId });
-
-    const recipients = [];
-    recipients.push(user?.email);
-
-    await sendEmailFun({
-      sendTo: recipients,
-      subject: "Order Confirmation",
-      text: "",
-      html: OrderConfirmationEmail(user?.name, order),
-    });
+    // 4. Send confirmation email
+    const user = await UserModel.findById(userId);
+    if (user?.email) {
+      await sendEmailFun({
+        sendTo: [user.email],
+        subject: "Order Confirmation",
+        text: "",
+        html: OrderConfirmationEmail(user.name, order),
+      });
+    }
 
     return response.status(200).json({
       error: false,
       success: true,
       message: "Order Placed",
-      order: order,
+      order,
     });
   } catch (error) {
     return response.status(500).json({
@@ -77,24 +122,56 @@ export const createOrderController = async (request, response) => {
 
 export async function getOrderDetailsController(request, response) {
   try {
-    const userId = request.userId; // order id
+    const { page = 1, limit = 10 } = request.query;
 
-    const { page, limit } = request.query;
-
-    const orderlist = await OrderModel.find()
+    const orders = await OrderModel.find()
       .sort({ createdAt: -1 })
       .populate("delivery_address userId")
       .skip((page - 1) * limit)
       .limit(parseInt(limit));
 
-    const total = await OrderModel.countDocuments(orderlist);
+    // Fetch variant details for each product in each order
+    const enrichedOrders = await Promise.all(
+      orders.map(async (order) => {
+        const enrichedProducts = await Promise.all(
+          order.products.map(async (item) => {
+            const product = await ProductModel.findById(item.productId);
+            let variantData = null;
 
-    return response.json({
-      message: "order list",
-      data: orderlist,
+            if (product && item.productVariantId) {
+              const variant = product.variantCombinations.find(
+                (v) => v._id?.toString() === item.productVariantId
+              );
+
+              if (variant) {
+                variantData = {
+                  ...variant.toObject(),
+                };
+              }
+            }
+
+            return {
+              ...item.toObject(),
+              variantData,
+            };
+          })
+        );
+
+        return {
+          ...order.toObject(),
+          products: enrichedProducts,
+        };
+      })
+    );
+
+    const total = await OrderModel.countDocuments();
+
+    return response.status(200).json({
+      message: "Order list fetched successfully",
+      data: enrichedOrders,
       error: false,
       success: true,
-      total: total,
+      total,
       page: parseInt(page),
       totalPages: Math.ceil(total / limit),
     });
@@ -106,6 +183,7 @@ export async function getOrderDetailsController(request, response) {
     });
   }
 }
+
 
 export async function getUserOrderDetailsController(request, response) {
   try {

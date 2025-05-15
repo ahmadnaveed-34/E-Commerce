@@ -46,12 +46,18 @@ export const ProductZoom = (props) => {
             ].map((img, index) => (
               <SwiperSlide key={index}>
                 <div
-                  className={`item rounded-md overflow-hidden cursor-pointer group h-[100%] ${
-                    slideIndex === index ? "opacity-1" : "opacity-30"
+                  className={`item rounded-md overflow-hidden cursor-pointer group transition-opacity duration-200 h-full ${
+                    slideIndex === index
+                      ? "opacity-100 border-2 border-blue-600"
+                      : "opacity-40"
                   }`}
                   onClick={() => goto(index)}
                 >
-                  <img src={img} alt="img" />
+                  <img
+                    src={img}
+                    alt={`thumbnail-${index}`}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               </SwiperSlide>
             ))}

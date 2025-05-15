@@ -71,7 +71,7 @@ export const Users = () => {
 
   useEffect(() => {
     getUsers(page, rowsPerPage);
-  }, [page, rowsPerPage]);
+  }, [page, rowsPerPage, context?.openAddUserModal]);
 
   const getUsers = (page, limit) => {
     setIsloading(true);

@@ -130,7 +130,7 @@ const Checkout = () => {
   return (
     <section className="py-3 lg:py-10 px-3">
       <form onSubmit={checkout}>
-        <div className="w-full lg:w-[70%] m-auto flex flex-col md:flex-row gap-5">
+        <div className="w-full lg:w-[90%] m-auto flex flex-col md:flex-row gap-5">
           <div className="leftCol w-full md:w-[60%]">
             <div className="card bg-white shadow-md p-5 rounded-md w-full">
               <div className="flex items-center justify-between">
@@ -246,37 +246,66 @@ const Checkout = () => {
                   context?.cartData?.map((item, index) => {
                     return (
                       <div
-                        className="flex items-center justify-between py-2"
+                        className="flex items-center justify-between py-2 border-b border-gray-100"
                         key={index}
                       >
+                        {/* Left Side: Image + Info */}
                         <div className="part1 flex items-center gap-3">
                           <div className="img w-[50px] h-[50px] object-cover overflow-hidden rounded-md group cursor-pointer">
                             <img
                               src={item?.image}
-                              className="w-full transition-all group-hover:scale-105"
+                              className="w-full h-full object-cover transition-all group-hover:scale-105"
                               alt="img"
                             />
                           </div>
 
-                          <div className="info">
+                          <div className="info space-y-1">
                             <h4
-                              className="text-[14px]"
+                              className="text-[14px] font-medium text-gray-800"
                               title={item?.productTitle}
                             >
                               {item?.productTitle?.length > 20
                                 ? item?.productTitle?.substr(0, 19) + "..."
                                 : item?.productTitle}
                             </h4>
-                            <span className="text-[13px]">
-                              Qty : {item?.quantity}
+
+                            {/* Quantity */}
+                            <span className="text-[13px] text-gray-600">
+                              Qty: {item?.quantity}
                             </span>
+                        
+
+                            {/* ✅ Variant Options (from variantData.options) */}
+                            {item?.variantData?.options &&
+                              Object.keys(item.variantData.options).length >
+                                0 && (
+                                <div className="flex flex-wrap gap-1 text-xs text-gray-500 mt-1">
+                                  {Object.entries(item.variantData.options).map(
+                                    ([key, val]) => (
+                                      <span
+                                        key={key}
+                                        className="bg-gray-100 border border-gray-300 text-gray-700 px-2 py-1 rounded-full"
+                                      >
+                                        {key}:{" "}
+                                        <strong className="text-gray-900">
+                                          {val}
+                                        </strong>
+                                      </span>
+                                    )
+                                  )}
+                                </div>
+                              )}
                           </div>
                         </div>
 
-                        <span className="text-[14px] font-[500]">
+                        {/* Price */}
+                        <span className="text-[14px] font-semibold text-gray-800">
                           {(item?.quantity * item?.price)?.toLocaleString(
                             "en-US",
-                            { style: "currency", currency: "PKR" }
+                            {
+                              style: "currency",
+                              currency: "PKR",
+                            }
                           )}
                         </span>
                       </div>

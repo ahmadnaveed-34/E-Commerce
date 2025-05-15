@@ -8,7 +8,7 @@ const ProductLoadingGrid = (props) => {
           <div className="col  animate-pulse">
             <div className="flex items-center mb-3 justify-center w-full h-60 bg-gray-300 rounded-lg  ">
               <svg
-                class="w-10 h-10 text-gray-200"
+                className="w-10 h-10 text-gray-200"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="currentColor"
@@ -18,18 +18,18 @@ const ProductLoadingGrid = (props) => {
               </svg>
             </div>
 
-            <div class="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
-            <div class="h-2 bg-gray-200 rounded-full mb-2.5"></div>
+            <div className="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
+            <div className="h-2 bg-gray-200 rounded-full mb-2.5"></div>
 
-            <div class="h-2 bg-gray-200 rounded-full w-48 mb-2"></div>
-            <div class="h-2 bg-gray-200 rounded-full w-36 mb-2"></div>
-            <div class="h-2 bg-gray-200 rounded-full "></div>
+            <div className="h-2 bg-gray-200 rounded-full w-48 mb-2"></div>
+            <div className="h-2 bg-gray-200 rounded-full w-36 mb-2"></div>
+            <div className="h-2 bg-gray-200 rounded-full "></div>
           </div>
 
           <div className="col  animate-pulse">
             <div className="flex items-center mb-3 justify-center w-full h-60 bg-gray-300 rounded-lg  ">
               <svg
-                class="w-10 h-10 text-gray-200"
+                className="w-10 h-10 text-gray-200"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="currentColor"
@@ -39,18 +39,18 @@ const ProductLoadingGrid = (props) => {
               </svg>
             </div>
 
-            <div class="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
-            <div class="h-2 bg-gray-200 rounded-full mb-2.5"></div>
+            <div className="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
+            <div className="h-2 bg-gray-200 rounded-full mb-2.5"></div>
 
-            <div class="h-2 bg-gray-200 rounded-full w-48 mb-2"></div>
-            <div class="h-2 bg-gray-200 rounded-full w-36 mb-2"></div>
-            <div class="h-2 bg-gray-200 rounded-full "></div>
+            <div className="h-2 bg-gray-200 rounded-full w-48 mb-2"></div>
+            <div className="h-2 bg-gray-200 rounded-full w-36 mb-2"></div>
+            <div className="h-2 bg-gray-200 rounded-full "></div>
           </div>
 
           <div className="col  animate-pulse">
             <div className="flex items-center mb-3 justify-center w-full h-60 bg-gray-300 rounded-lg  ">
               <svg
-                class="w-10 h-10 text-gray-200"
+                className="w-10 h-10 text-gray-200"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="currentColor"
@@ -60,18 +60,18 @@ const ProductLoadingGrid = (props) => {
               </svg>
             </div>
 
-            <div class="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
-            <div class="h-2 bg-gray-200 rounded-full mb-2.5"></div>
+            <div className="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
+            <div className="h-2 bg-gray-200 rounded-full mb-2.5"></div>
 
-            <div class="h-2 bg-gray-200 rounded-full w-48 mb-2"></div>
-            <div class="h-2 bg-gray-200 rounded-full w-36 mb-2"></div>
-            <div class="h-2 bg-gray-200 rounded-full "></div>
+            <div className="h-2 bg-gray-200 rounded-full w-48 mb-2"></div>
+            <div className="h-2 bg-gray-200 rounded-full w-36 mb-2"></div>
+            <div className="h-2 bg-gray-200 rounded-full "></div>
           </div>
 
           <div className="col  animate-pulse">
             <div className="flex items-center mb-3 justify-center w-full h-60 bg-gray-300 rounded-lg  ">
               <svg
-                class="w-10 h-10 text-gray-200"
+                className="w-10 h-10 text-gray-200"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="currentColor"
@@ -81,18 +81,18 @@ const ProductLoadingGrid = (props) => {
               </svg>
             </div>
 
-            <div class="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
-            <div class="h-2 bg-gray-200 rounded-full mb-2.5"></div>
+            <div className="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
+            <div className="h-2 bg-gray-200 rounded-full mb-2.5"></div>
 
-            <div class="h-2 bg-gray-200 rounded-full w-48 mb-2"></div>
-            <div class="h-2 bg-gray-200 rounded-full w-36 mb-2"></div>
-            <div class="h-2 bg-gray-200 rounded-full "></div>
+            <div className="h-2 bg-gray-200 rounded-full w-48 mb-2"></div>
+            <div className="h-2 bg-gray-200 rounded-full w-36 mb-2"></div>
+            <div className="h-2 bg-gray-200 rounded-full "></div>
           </div>
 
           <div className="col  animate-pulse">
             <div className="flex items-center mb-3 justify-center w-full h-60 bg-gray-300 rounded-lg  ">
               <svg
-                class="w-10 h-10 text-gray-200"
+                className="w-10 h-10 text-gray-200"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="currentColor"
@@ -102,18 +102,18 @@ const ProductLoadingGrid = (props) => {
               </svg>
             </div>
 
-            <div class="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
-            <div class="h-2 bg-gray-200 rounded-full mb-2.5"></div>
+            <div className="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
+            <div className="h-2 bg-gray-200 rounded-full mb-2.5"></div>
 
-            <div class="h-2 bg-gray-200 rounded-full w-48 mb-2"></div>
-            <div class="h-2 bg-gray-200 rounded-full w-36 mb-2"></div>
-            <div class="h-2 bg-gray-200 rounded-full "></div>
+            <div className="h-2 bg-gray-200 rounded-full w-48 mb-2"></div>
+            <div className="h-2 bg-gray-200 rounded-full w-36 mb-2"></div>
+            <div className="h-2 bg-gray-200 rounded-full "></div>
           </div>
 
           <div className="col  animate-pulse">
             <div className="flex items-center mb-3 justify-center w-full h-60 bg-gray-300 rounded-lg  ">
               <svg
-                class="w-10 h-10 text-gray-200"
+                className="w-10 h-10 text-gray-200"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="currentColor"
@@ -123,18 +123,18 @@ const ProductLoadingGrid = (props) => {
               </svg>
             </div>
 
-            <div class="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
-            <div class="h-2 bg-gray-200 rounded-full mb-2.5"></div>
+            <div className="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
+            <div className="h-2 bg-gray-200 rounded-full mb-2.5"></div>
 
-            <div class="h-2 bg-gray-200 rounded-full w-48 mb-2"></div>
-            <div class="h-2 bg-gray-200 rounded-full w-36 mb-2"></div>
-            <div class="h-2 bg-gray-200 rounded-full "></div>
+            <div className="h-2 bg-gray-200 rounded-full w-48 mb-2"></div>
+            <div className="h-2 bg-gray-200 rounded-full w-36 mb-2"></div>
+            <div className="h-2 bg-gray-200 rounded-full "></div>
           </div>
 
           <div className="col  animate-pulse">
             <div className="flex items-center mb-3 justify-center w-full h-60 bg-gray-300 rounded-lg  ">
               <svg
-                class="w-10 h-10 text-gray-200"
+                className="w-10 h-10 text-gray-200"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="currentColor"
@@ -144,18 +144,18 @@ const ProductLoadingGrid = (props) => {
               </svg>
             </div>
 
-            <div class="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
-            <div class="h-2 bg-gray-200 rounded-full mb-2.5"></div>
+            <div className="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
+            <div className="h-2 bg-gray-200 rounded-full mb-2.5"></div>
 
-            <div class="h-2 bg-gray-200 rounded-full w-48 mb-2"></div>
-            <div class="h-2 bg-gray-200 rounded-full w-36 mb-2"></div>
-            <div class="h-2 bg-gray-200 rounded-full "></div>
+            <div className="h-2 bg-gray-200 rounded-full w-48 mb-2"></div>
+            <div className="h-2 bg-gray-200 rounded-full w-36 mb-2"></div>
+            <div className="h-2 bg-gray-200 rounded-full "></div>
           </div>
 
           <div className="col  animate-pulse">
             <div className="flex items-center mb-3 justify-center w-full h-60 bg-gray-300 rounded-lg  ">
               <svg
-                class="w-10 h-10 text-gray-200"
+                className="w-10 h-10 text-gray-200"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="currentColor"
@@ -165,18 +165,18 @@ const ProductLoadingGrid = (props) => {
               </svg>
             </div>
 
-            <div class="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
-            <div class="h-2 bg-gray-200 rounded-full mb-2.5"></div>
+            <div className="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
+            <div className="h-2 bg-gray-200 rounded-full mb-2.5"></div>
 
-            <div class="h-2 bg-gray-200 rounded-full w-48 mb-2"></div>
-            <div class="h-2 bg-gray-200 rounded-full w-36 mb-2"></div>
-            <div class="h-2 bg-gray-200 rounded-full "></div>
+            <div className="h-2 bg-gray-200 rounded-full w-48 mb-2"></div>
+            <div className="h-2 bg-gray-200 rounded-full w-36 mb-2"></div>
+            <div className="h-2 bg-gray-200 rounded-full "></div>
           </div>
 
           <div className="col  animate-pulse">
             <div className="flex items-center mb-3 justify-center w-full h-60 bg-gray-300 rounded-lg  ">
               <svg
-                class="w-10 h-10 text-gray-200 "
+                className="w-10 h-10 text-gray-200 "
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="currentColor"
@@ -186,18 +186,18 @@ const ProductLoadingGrid = (props) => {
               </svg>
             </div>
 
-            <div class="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
-            <div class="h-2 bg-gray-200 rounded-full mb-2.5"></div>
+            <div className="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
+            <div className="h-2 bg-gray-200 rounded-full mb-2.5"></div>
 
-            <div class="h-2 bg-gray-200 rounded-full w-48 mb-2"></div>
-            <div class="h-2 bg-gray-200 rounded-full w-36 mb-2"></div>
-            <div class="h-2 bg-gray-200 rounded-full "></div>
+            <div className="h-2 bg-gray-200 rounded-full w-48 mb-2"></div>
+            <div className="h-2 bg-gray-200 rounded-full w-36 mb-2"></div>
+            <div className="h-2 bg-gray-200 rounded-full "></div>
           </div>
 
           <div className="col  animate-pulse">
             <div className="flex items-center mb-3 justify-center w-full h-60 bg-gray-300 rounded-lg">
               <svg
-                class="w-10 h-10 text-gray-200"
+                className="w-10 h-10 text-gray-200"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="currentColor"
@@ -207,12 +207,12 @@ const ProductLoadingGrid = (props) => {
               </svg>
             </div>
 
-            <div class="h-2.5 bg-gray-200 rounded-full  w-48 mb-4"></div>
-            <div class="h-2 bg-gray-200 rounded-full  mb-2.5"></div>
+            <div className="h-2.5 bg-gray-200 rounded-full  w-48 mb-4"></div>
+            <div className="h-2 bg-gray-200 rounded-full  mb-2.5"></div>
 
-            <div class="h-2 bg-gray-200 rounded-full  w-48 mb-2"></div>
-            <div class="h-2 bg-gray-200 rounded-full  w-36 mb-2"></div>
-            <div class="h-2 bg-gray-200 rounded-full  "></div>
+            <div className="h-2 bg-gray-200 rounded-full  w-48 mb-2"></div>
+            <div className="h-2 bg-gray-200 rounded-full  w-36 mb-2"></div>
+            <div className="h-2 bg-gray-200 rounded-full  "></div>
           </div>
         </>
       )}
@@ -222,7 +222,7 @@ const ProductLoadingGrid = (props) => {
           <div className="col  animate-pulse flex items-center gap-4">
             <div className="flex items-center mb-3 justify-center w-[20%] h-52 bg-gray-300 rounded-lg  ">
               <svg
-                class="w-10 h-10 text-gray-200 "
+                className="w-10 h-10 text-gray-200 "
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="currentColor"
@@ -233,14 +233,14 @@ const ProductLoadingGrid = (props) => {
             </div>
 
             <div className="w-[80%]">
-              <div class="h-2.5 bg-gray-200 rounded-full  w-48 mb-4"></div>
-              <div class="h-2 bg-gray-200 rounded-full  mb-2.5"></div>
+              <div className="h-2.5 bg-gray-200 rounded-full  w-48 mb-4"></div>
+              <div className="h-2 bg-gray-200 rounded-full  mb-2.5"></div>
 
-              <div class="h-2 bg-gray-200 rounded-full  w-48 mb-2"></div>
-              <div class="h-2.5 bg-gray-200 rounded-full  w-48 mb-4"></div>
-              <div class="h-2 bg-gray-200 rounded-full  w-36 mb-2"></div>
-              <div class="h-2 bg-gray-200 rounded-full  "></div>
-              <div class="h-2 bg-gray-200 rounded-full mt-2  mb-2.5"></div>
+              <div className="h-2 bg-gray-200 rounded-full  w-48 mb-2"></div>
+              <div className="h-2.5 bg-gray-200 rounded-full  w-48 mb-4"></div>
+              <div className="h-2 bg-gray-200 rounded-full  w-36 mb-2"></div>
+              <div className="h-2 bg-gray-200 rounded-full  "></div>
+              <div className="h-2 bg-gray-200 rounded-full mt-2  mb-2.5"></div>
             </div>
           </div>
         </>

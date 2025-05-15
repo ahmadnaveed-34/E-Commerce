@@ -32,9 +32,9 @@ export const ProductDetailsComponent = (props) => {
   const [cartItemId, setCartItemId] = useState();
 
   useEffect(() => {
-    setRegularPrice(props?.item?.variants?.[0]?.regularPrice);
-    setDiscountedPrice(props?.item?.variants?.[0]?.discountedPrice);
-    setCountInStock(props?.item?.variants?.[0]?.stock);
+    setRegularPrice(props?.item?.variantCombinations?.[0]?.regularPrice);
+    setDiscountedPrice(props?.item?.variantCombinations?.[0]?.discountedPrice);
+    setCountInStock(props?.item?.variantCombinations?.[0]?.stock);
   }, []);
 
   const context = useContext(MyContext);
@@ -61,41 +61,74 @@ export const ProductDetailsComponent = (props) => {
   }, [context?.myListData]);
 
   const addToCart = (product, userId, quantity) => {
-    if (userId === undefined) {
-      context?.alertBox("error", "you are not login please login first");
-      return false;
-    }
-
-    if (filteredVariants?.length === 0 || filteredVariants?.length > 1) {
+    if (!userId) {
       return context?.alertBox(
         "error",
-        "At least one valid product variant is required."
+        "You are not logged in. Please login first."
       );
     }
 
-    if (filteredVariants[0]?.stock <= 0) {
-      return context?.alertBox("error", "Stock not available for this variant");
+    const allVariants = product?.variantCombinations || [];
+
+    // Normalize selectedVariants keys for comparison
+    const normalizeKey = (str) => str?.trim()?.toLowerCase();
+
+    // Get all attribute keys used in options
+    const requiredKeys = Object.keys(allVariants?.[0]?.options || {}).map(
+      normalizeKey
+    );
+
+    // Ensure all required attributes are selected
+    const allSelected = requiredKeys.every((key) =>
+      Object.keys(selectedVariants).some(
+        (k) => normalizeKey(k) === key && selectedVariants[k]
+      )
+    );
+
+    if (!allSelected) {
+      return context?.alertBox(
+        "error",
+        "Please select all product attributes."
+      );
     }
 
+    // Find the exact variant using normalized key match
+    const matchedVariant = allVariants.find((variant) =>
+      Object.entries(variant.options || {}).every(
+        ([optKey, optVal]) =>
+          selectedVariants[optKey] === optVal ||
+          selectedVariants[normalizeKey(optKey)] === optVal
+      )
+    );
+
+    if (!matchedVariant) {
+      return context?.alertBox("error", "Selected variant does not exist.");
+    }
+
+    if (matchedVariant.stock <= 0) {
+      return context?.alertBox("error", "This variant is out of stock.");
+    }
+
+    // Construct cart item
     const productItem = {
       _id: product?._id,
       productTitle: product?.name,
-      image: filteredVariants[0]?.image,
+      image: matchedVariant?.image,
       rating: product?.rating,
-      price: filteredVariants[0]?.discountedPrice,
-      oldPrice: filteredVariants[0]?.regularPrice,
-      quantity: 1,
-      subTotal: parseInt(filteredVariants[0]?.discountedPrice * quantity),
+      price: matchedVariant?.discountedPrice,
+      oldPrice: matchedVariant?.regularPrice,
+      quantity: quantity + 1,
+      subTotal: parseInt(matchedVariant.discountedPrice * (quantity + 1)),
       productId: product?._id,
       brand: product?.brand,
-      countInStock: filteredVariants[0]?.stock,
-      productVariantId: filteredVariants[0]?._id,
+      countInStock: matchedVariant?.stock,
+      productVariantId: matchedVariant?._id,
+      variantIndex: allVariants.findIndex((v) => v._id === matchedVariant._id), // optional for stock update
     };
 
     postData("/api/cart/add", productItem).then((res) => {
       if (res?.error === false) {
         context?.alertBox("success", res?.message);
-
         context?.getCartItems();
         setTimeout(() => {
           setIsLoading(false);
@@ -121,8 +154,9 @@ export const ProductDetailsComponent = (props) => {
         productTitle: item?.name,
         image: item?.images[0],
         rating: item?.rating,
-        price: item?.variants[0]?.discountedPrice,
-        oldPrice: item?.variants[0]?.regularPrice,
+        price: item?.variantCombinations?.[0]?.discountedPrice || 0,
+        oldPrice: item?.variantCombinations?.[0]?.regularPrice || 0,
+
         brand: item?.brand,
       };
 
@@ -139,28 +173,57 @@ export const ProductDetailsComponent = (props) => {
   };
 
   const handleClickActiveTab = (key, value) => {
-    const newSelected = { ...selectedVariants, [key]: value };
+    const updatedVariants = { ...selectedVariants, [key]: value };
+    setSelectedVariants(updatedVariants);
 
-    // Filter variants that match all selected keys
-    const filtered = props?.item?.variants?.filter((variant) =>
-      Object.entries(newSelected).every(([k, v]) => variant[k] === v)
-    );
+    const normalize = (obj) => {
+      const normalized = {};
+      for (const k in obj) {
+        normalized[k.toLowerCase()] = obj[k];
+      }
+      return normalized;
+    };
 
-    setSelectedVariants(newSelected);
+    const normalizedSelected = normalize(updatedVariants);
+
+    // 1. Filter matching variants from context
+    const filtered = context?.productVariantData?.filter((variant) => {
+      const variantOptions = normalize(variant.options || {});
+      return Object.entries(normalizedSelected).every(
+        ([k, v]) => variantOptions[k] === v
+      );
+    });
+
     setFilteredVariants(filtered);
 
-    setRegularPrice(filtered[0]?.regularPrice);
-    setDiscountedPrice(filtered[0]?.discountedPrice);
-    setCountInStock(filtered[0]?.stock);
-
-    const variantIndex = props?.item?.variants?.findIndex((variant) =>
-      Object.entries(newSelected).every(([k, v]) => variant[k] === v)
-    );
-
-    if (variantIndex !== -1) {
-      context?.setChangeProductPicIndex(
-        (props?.item?.images?.length || 0) + variantIndex
+    // 2. Match correct variant from props.item.variantCombinations
+    const matched = props?.item?.variantCombinations?.find((variant) => {
+      const variantOptions = normalize(variant.options || {});
+      return Object.entries(normalizedSelected).every(
+        ([k, v]) => variantOptions[k] === v
       );
+    });
+
+    if (matched) {
+      setRegularPrice(matched.regularPrice || 0);
+      setDiscountedPrice(matched.discountedPrice || 0);
+      setCountInStock(matched.stock || 0);
+
+      const indexInVariants = props?.item?.variantCombinations?.findIndex(
+        (v) =>
+          JSON.stringify(normalize(v.options)) ===
+          JSON.stringify(normalize(matched.options))
+      );
+
+      if (indexInVariants !== -1) {
+        context?.setChangeProductPicIndex(
+          (props?.item?.images?.length || 0) + indexInVariants
+        );
+      }
+    } else {
+      setRegularPrice(0);
+      setDiscountedPrice(0);
+      setCountInStock(0);
     }
   };
 
@@ -228,6 +291,14 @@ export const ProductDetailsComponent = (props) => {
     }
   }, [context?.cartData]);
 
+  const attributeKeys = [
+    ...new Set(
+      props?.item?.variantCombinations.flatMap((v) =>
+        Object.keys(v.options || {})
+      )
+    ),
+  ];
+
   return (
     <>
       <h1 className="text-[18px] sm:text-[22px] font-[600] mb-2">
@@ -280,29 +351,19 @@ export const ProductDetailsComponent = (props) => {
 
       {/* Dynamic Variant Rendering */}
       <div className="space-y-3">
-        {[
-          "size",
-          "color",
-          "material",
-          "ram",
-          "weight",
-          "storage",
-          "voltage",
-          "flavour",
-          "dimensions",
-        ].map((key) => {
-          const allVariants = props?.item?.variants || [];
+        {attributeKeys.map((key) => {
+          const allVariants = props?.item?.variantCombinations;
 
-          // Filter valid variants that match all other selected keys (except current key)
           const filteredForKey = allVariants.filter((v) =>
             Object.entries(selectedVariants).every(
-              ([k, val]) => k === key || v[k] === val
+              ([k, val]) => k === key || v.options?.[k] === val
             )
           );
 
-          // Unique values for current key from filtered variants
           const validValues = [
-            ...new Set(filteredForKey.map((v) => v[key]).filter(Boolean)),
+            ...new Set(
+              filteredForKey.map((v) => v.options?.[key]).filter(Boolean)
+            ),
           ];
 
           return (
@@ -310,10 +371,9 @@ export const ProductDetailsComponent = (props) => {
               <div key={key} className="flex items-center gap-2">
                 <span className="uppercase text-sm">{key}:</span>
                 {validValues.map((val, i) => {
-                  // Determine if this exact value is selectable
                   const isDisabled = !allVariants.some((v) =>
                     Object.entries({ ...selectedVariants, [key]: val }).every(
-                      ([k, vVal]) => v[k] === vVal
+                      ([k, vVal]) => v.options?.[k] === vVal
                     )
                   );
 
@@ -321,18 +381,15 @@ export const ProductDetailsComponent = (props) => {
                     <button
                       key={i}
                       disabled={isDisabled}
-                      className={`px-2 py-1 rounded border 
-                  ${
-                    selectedVariants[key] === val
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-200"
-                  }
-                  ${
-                    isDisabled
-                      ? "opacity-40 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }
-                `}
+                      className={`px-2 py-1 rounded border ${
+                        selectedVariants[key] === val
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-200"
+                      } ${
+                        isDisabled
+                          ? "opacity-40 cursor-not-allowed"
+                          : "cursor-pointer"
+                      }`}
                       onClick={() =>
                         !isDisabled && handleClickActiveTab(key, val)
                       }

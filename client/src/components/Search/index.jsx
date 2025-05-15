@@ -28,7 +28,7 @@ const Search = () => {
       setIsShowDropDown(true);
       postData(`/api/product/search/get`, obj).then((res) => {
         setSearchResults(res?.products);
-        console.log(res?.products);
+        // console.log(res?.products);
       });
     } else {
       setIsShowDropDown(false);
@@ -47,7 +47,7 @@ const Search = () => {
     if (searchQuery !== "") {
       postData(`/api/product/search/get`, obj).then((res) => {
         context?.setSearchData(res);
-        console.log(res);
+        // console.log(res);
         setTimeout(() => {
           setIsLoading(false);
           context?.setOpenSearchPanel(false);

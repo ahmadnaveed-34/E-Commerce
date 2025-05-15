@@ -60,7 +60,7 @@ function App() {
   const [showVariantModal, setShowVariantModal] = useState(false);
   const [filteredVariants, setFilteredVariants] = useState([]);
 
-  const [changeProductPicIndex, setChangeProductPicIndex] = useState();
+  const [changeProductPicIndex, setChangeProductPicIndex] = useState(0);
   const [productVariantData, setProductVarinatData] = useState([]);
   const [modelProductData, setModelProductData] = useState();
 
@@ -74,7 +74,6 @@ function App() {
   const handleCloseProductDetailsModal = () => {
     setOpenProductDetailsModal({
       open: false,
-      item: {},
     });
   };
 

@@ -1,4 +1,5 @@
 import CartProductModel from "../models/cartProduct.modal.js";
+import ProductModel from "../models/product.modal.js";
 
 export const addToCartItemController = async (request, response) => {
   try {
@@ -72,12 +73,24 @@ export const getCartItemController = async (request, response) => {
   try {
     const userId = request.userId;
 
-    const cartItems = await CartProductModel.find({
-      userId: userId,
-    });
+    const cartItems = await CartProductModel.find({ userId });
+
+    const enrichedCartItems = await Promise.all(
+      cartItems.map(async (item) => {
+        const product = await ProductModel.findById(item.productId);
+        const variantData = product?.variantCombinations?.find(
+          (v) => v._id.toString() === item.productVariantId
+        );
+
+        return {
+          ...item.toObject(),
+          variantData: variantData || null,
+        };
+      })
+    );
 
     return response.json({
-      data: cartItems,
+      data: enrichedCartItems,
       error: false,
       success: true,
     });

@@ -253,141 +253,21 @@ const CartItems = (props) => {
           readOnly
         />
 
+        {/* Variant Options */}
+        {props?.item?.variantData?.options && (
+          <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-600">
+            {Object.entries(props?.item?.variantData.options).map(([k, v]) => (
+              <span
+                key={k}
+                className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full border border-gray-300"
+              >
+                {k}: <strong className="text-gray-900">{v}</strong>
+              </span>
+            ))}
+          </div>
+        )}
+
         <div className="flex items-center gap-4 mt-2">
-          {/* {props?.item?.size !== "" && (
-            <>
-              {props?.productSizeData?.length !== 0 && (
-                <div className="relative">
-                  <span
-                    className="flex items-center justify-center bg-[#f1f1f1] text-[11px]
-       font-[600] py-1 px-2 rounded-md cursor-pointer"
-                    onClick={handleClickSize}
-                  >
-                    Size: {selectedSize} <GoTriangleDown />
-                  </span>
-
-                  <Menu
-                    id="size-menu"
-                    anchorEl={sizeanchorEl}
-                    open={openSize}
-                    onClose={() => handleCloseSize(null)}
-                    MenuListProps={{
-                      "aria-labelledby": "basic-button",
-                    }}
-                  >
-                    {props?.productSizeData?.map((item, index) => {
-                      return (
-                        <MenuItem
-                          key={index}
-                          className={`${
-                            item?.name === selectedSize && "selected"
-                          }`}
-                          onClick={() =>
-                            updateCart(
-                              item?.name,
-                              props?.item?.quantity,
-                              "size"
-                            )
-                          }
-                        >
-                          {item?.name}
-                        </MenuItem>
-                      );
-                    })}
-                  </Menu>
-                </div>
-              )}
-            </>
-          )}
-
-          {props?.item?.ram !== "" && (
-            <>
-              {props?.productRamsData?.length !== 0 && (
-                <div className="relative">
-                  <span
-                    className="flex items-center justify-center bg-[#f1f1f1] text-[11px]
-       font-[600] py-1 px-2 rounded-md cursor-pointer"
-                    onClick={handleClickSize}
-                  >
-                    RAM: {selectedSize} <GoTriangleDown />
-                  </span>
-
-                  <Menu
-                    id="size-menu"
-                    anchorEl={sizeanchorEl}
-                    open={openSize}
-                    onClose={() => handleCloseSize(null)}
-                    MenuListProps={{
-                      "aria-labelledby": "basic-button",
-                    }}
-                  >
-                    {props?.productRamsData?.map((item, index) => {
-                      return (
-                        <MenuItem
-                          key={index}
-                          className={`${
-                            item?.name === selectedSize && "selected"
-                          }`}
-                          onClick={() =>
-                            updateCart(item?.name, props?.item?.quantity, "ram")
-                          }
-                        >
-                          {item?.name}
-                        </MenuItem>
-                      );
-                    })}
-                  </Menu>
-                </div>
-              )}
-            </>
-          )}
-
-          {props?.item?.weight !== "" && (
-            <>
-              {props?.productWeightData?.length !== 0 && (
-                <div className="relative">
-                  <span
-                    className="flex items-center justify-center bg-[#f1f1f1] text-[11px]
-       font-[600] py-1 px-2 rounded-md cursor-pointer"
-                    onClick={handleClickSize}
-                  >
-                    Weight: {selectedSize} <GoTriangleDown />
-                  </span>
-
-                  <Menu
-                    id="size-menu"
-                    anchorEl={sizeanchorEl}
-                    open={openSize}
-                    onClose={() => handleCloseSize(null)}
-                    MenuListProps={{
-                      "aria-labelledby": "basic-button",
-                    }}
-                  >
-                    {props?.productWeightData?.map((item, index) => {
-                      return (
-                        <MenuItem
-                          key={index}
-                          className={`${
-                            item?.name === selectedSize && "selected"
-                          }`}
-                          onClick={() =>
-                            updateCart(
-                              item?.name,
-                              props?.item?.quantity,
-                              "weight"
-                            )
-                          }
-                        >
-                          {item?.name}
-                        </MenuItem>
-                      );
-                    })}
-                  </Menu>
-                </div>
-              )}
-            </>
-          )} */}
-
           <div className="relative">
             <div className="flex items-center justify-between overflow-hidden rounded-full border border-[rgba(0,0,0,0.1)] gap-2">
               <Button
