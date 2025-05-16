@@ -770,6 +770,7 @@ const AddProduct = () => {
                     </div>
 
                     <button
+                      type="button"
                       onClick={() => removeCombination(i)}
                       className="text-red-500 text-sm"
                     >
