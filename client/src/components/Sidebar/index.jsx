@@ -137,7 +137,6 @@ export const Sidebar = (props) => {
     <aside className="sidebar py-3  lg:py-5 static lg:sticky top-[130px] z-[50] pr-0 lg:pr-5">
       <div className=" max-h-[60vh]  lg:overflow-visible overflow-auto  w-full">
         <div className="box">
-       
           <h3 className="w-full mb-3 text-[16px] font-[600] flex items-center pr-5">
             Shop by Category
             <Button

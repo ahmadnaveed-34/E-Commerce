@@ -184,7 +184,6 @@ export async function getOrderDetailsController(request, response) {
   }
 }
 
-
 export async function getUserOrderDetailsController(request, response) {
   try {
     const userId = request.userId; // order id
